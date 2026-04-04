@@ -21,10 +21,13 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "vercel-build": "react-scripts build",
+    "build:ci": "set CI=true && npm run build",
     "clean": "npm run clean:deps && npm run clean:build",
     "clean:deps": "rimraf node_modules",
     "clean:build": "rimraf build",
-    "fresh": "npm run clean && npm install && npm run build"
+    "fresh": "npm run clean && npm install && npm run build",
+    "lint:fix": "eslint src --fix",
+    "lint:quiet": "eslint src --quiet"
   },
   "eslintConfig": {
     "extends": [

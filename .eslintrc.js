@@ -5,6 +5,8 @@ module.exports = {
   ],
   rules: {
     'no-restricted-globals': 'off',
-    'no-unused-vars': 'warn'
+    'no-unused-vars': 'warn',
+    'no-useless-escape': 'off',
+    'no-loop-func': 'warn'
   }
 };
