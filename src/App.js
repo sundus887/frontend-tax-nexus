@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import './App.css';
+import AppShell from './components/AppShell';
 import DashboardPage from './pages/DashboardPage';
 import UploadInvoicePage from './pages/UploadInvoicePage';
 import InvoiceHistoryPage from './pages/InvoiceHistoryPage';
@@ -52,11 +53,31 @@ export default function App() {
         <Route path="/*" element={
           <AuthWrapper>
             <Routes>
-              <Route path="/" element={<DashboardPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/upload" element={<UploadInvoicePage />} />
-              <Route path="/history" element={<InvoiceHistoryPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/" element={
+                <AppShell activePage="dashboard">
+                  <DashboardPage />
+                </AppShell>
+              } />
+              <Route path="/dashboard" element={
+                <AppShell activePage="dashboard">
+                  <DashboardPage />
+                </AppShell>
+              } />
+              <Route path="/upload" element={
+                <AppShell activePage="upload">
+                  <UploadInvoicePage />
+                </AppShell>
+              } />
+              <Route path="/history" element={
+                <AppShell activePage="history">
+                  <InvoiceHistoryPage />
+                </AppShell>
+              } />
+              <Route path="/settings" element={
+                <AppShell activePage="settings">
+                  <SettingsPage />
+                </AppShell>
+              } />
               <Route path="/logout" element={<LogoutPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>

@@ -204,76 +204,6 @@ export default function SettingsPage() {
       <div className="settingsContainer">
         <div className="card">
           <div className="cardHeader">
-            <div className="cardTitle">Company Information</div>
-          </div>
-
-          <div className="form">
-            <div className="formRow">
-              <label className="field">
-                <div className="label">Company Name</div>
-                <input 
-                  className="input" 
-                  value={company} 
-                  onChange={e => setCompany(e.target.value)} 
-                  placeholder="Enter company name"
-                />
-              </label>
-            </div>
-
-            <div className="formRow">
-              <label className="field">
-                <div className="label">NTN (National Tax Number)</div>
-                <input 
-                  className="input" 
-                  value={ntn} 
-                  onChange={e => setNtn(e.target.value)} 
-                  placeholder="Enter NTN number"
-                />
-              </label>
-            </div>
-
-            <div className="formRow">
-              <label className="field">
-                <div className="label">Email Address</div>
-                <input 
-                  className="input" 
-                  type="email" 
-                  value={email} 
-                  onChange={e => setEmail(e.target.value)} 
-                  placeholder="Enter email address"
-                />
-              </label>
-            </div>
-
-            <div className="formRow">
-              <label className="field">
-                <div className="label">Phone Number</div>
-                <input 
-                  className="input" 
-                  value={phone} 
-                  onChange={e => setPhone(e.target.value)} 
-                  placeholder="Enter phone number"
-                />
-              </label>
-            </div>
-
-            <div className="formRow">
-              <label className="field">
-                <div className="label">Business Address</div>
-                <textarea 
-                  className="input" 
-                  rows="3" 
-                  value={address} 
-                  onChange={e => setAddress(e.target.value)} 
-                  placeholder="Enter business address"
-                />
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="cardHeader">
             <div className="cardTitle">API Configuration</div>
           </div>
 
@@ -355,6 +285,76 @@ export default function SettingsPage() {
 
         <div className="card">
           <div className="cardHeader">
+            <div className="cardTitle">Company Information</div>
+          </div>
+
+          <div className="form">
+            <div className="formRow">
+              <label className="field">
+                <div className="label">Company Name</div>
+                <input 
+                  className="input" 
+                  value={company} 
+                  onChange={e => setCompany(e.target.value)} 
+                  placeholder="Enter company name"
+                />
+              </label>
+            </div>
+
+            <div className="formRow">
+              <label className="field">
+                <div className="label">NTN (National Tax Number)</div>
+                <input 
+                  className="input" 
+                  value={ntn} 
+                  onChange={e => setNtn(e.target.value)} 
+                  placeholder="Enter NTN number"
+                />
+              </label>
+            </div>
+
+            <div className="formRow">
+              <label className="field">
+                <div className="label">Email Address</div>
+                <input 
+                  className="input" 
+                  type="email" 
+                  value={email} 
+                  onChange={e => setEmail(e.target.value)} 
+                  placeholder="Enter email address"
+                />
+              </label>
+            </div>
+
+            <div className="formRow">
+              <label className="field">
+                <div className="label">Phone Number</div>
+                <input 
+                  className="input" 
+                  value={phone} 
+                  onChange={e => setPhone(e.target.value)} 
+                  placeholder="Enter phone number"
+                />
+              </label>
+            </div>
+
+            <div className="formRow">
+              <label className="field">
+                <div className="label">Business Address</div>
+                <textarea 
+                  className="input" 
+                  rows="3" 
+                  value={address} 
+                  onChange={e => setAddress(e.target.value)} 
+                  placeholder="Enter business address"
+                />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="cardHeader">
             <div className="cardTitle">Application Preferences</div>
           </div>
 
@@ -390,45 +390,45 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="card" style={{ marginTop: '16px' }}>
-        <div className="cardHeader">
-          <div className="cardTitle">Actions</div>
-        </div>
+        <div className="card" style={{ marginTop: '16px' }}>
+          <div className="cardHeader">
+            <div className="cardTitle">Actions</div>
+          </div>
 
-        <div className="form">
-          <div className="formRow">
-            <div className="field">
-              <div className="label">General Actions</div>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                <button type="button" className="ghostBtn" onClick={onReset}>
-                  Reset to Default
-                </button>
-                <button type="button" className={canSave ? 'primaryBtn' : 'primaryBtn disabled'} onClick={onSave} disabled={!canSave}>
-                  Save Settings
-                </button>
+          <div className="form">
+            <div className="formRow">
+              <div className="field">
+                <div className="label">General Actions</div>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <button type="button" className="ghostBtn" onClick={onReset}>
+                    Reset to Default
+                  </button>
+                  <button type="button" className={canSave ? 'primaryBtn' : 'primaryBtn disabled'} onClick={onSave} disabled={!canSave}>
+                    Save Settings
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="formRow">
+              <div className="field">
+                <div className="label">Data Management</div>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <button type="button" className="ghostBtn" onClick={onClearAllInvoices} style={{ color: '#dc2626', borderColor: '#dc2626' }}>
+                    Clear All Invoices
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="formRow">
-            <div className="field">
-              <div className="label">Data Management</div>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                <button type="button" className="ghostBtn" onClick={onClearAllInvoices} style={{ color: '#dc2626', borderColor: '#dc2626' }}>
-                  Clear All Invoices
-                </button>
-              </div>
+          {savedAt && (
+            <div className="muted" style={{ marginTop: '12px' }}>
+              ✓ Settings saved successfully at: {savedAt}
             </div>
-          </div>
+          )}
         </div>
-
-        {savedAt && (
-          <div className="muted" style={{ marginTop: '12px' }}>
-            ✓ Settings saved successfully at: {savedAt}
-          </div>
-        )}
       </div>
     </div>
   );
