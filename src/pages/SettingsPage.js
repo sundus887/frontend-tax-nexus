@@ -36,13 +36,34 @@ export default function SettingsPage() {
       const savedApiSettings = localStorage.getItem('apiSettings');
       if (savedApiSettings) {
         const apiSettings = JSON.parse(savedApiSettings);
-        setEndpoint(apiSettings.endpoint || endpoint);
-        setApiKey(apiSettings.apiKey || apiKey);
+        setEndpoint(apiSettings.endpoint || 'https://api.fbr.gov.pk');
+        setApiKey(apiSettings.apiKey || 'FBR_API_TOKEN_12345');
       }
     } catch (error) {
       console.error('Error loading settings:', error);
     }
   }, []);
+
+  // Update localStorage when settings change
+  useEffect(() => {
+    try {
+      const settings = {
+        company,
+        ntn,
+        email,
+        phone,
+        address,
+        endpoint,
+        apiKey,
+        autoBackup,
+        emailNotifications,
+        darkMode
+      };
+      localStorage.setItem('settings', JSON.stringify(settings));
+    } catch (error) {
+      console.error('Error saving settings to localStorage:', error);
+    }
+  }, [company, ntn, email, phone, address, endpoint, apiKey, autoBackup, emailNotifications, darkMode]);
 
   const onSave = (e) => {
     if (e) e.preventDefault();

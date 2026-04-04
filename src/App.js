@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import './App.css';
-import AppShell from './components/AppShell';
 import DashboardPage from './pages/DashboardPage';
 import UploadInvoicePage from './pages/UploadInvoicePage';
 import InvoiceHistoryPage from './pages/InvoiceHistoryPage';
@@ -12,32 +11,37 @@ import LoginPage from './pages/LoginPage';
 
 function AuthWrapper({ children }) {
   const location = useLocation();
-  const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('authToken'));
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    try {
+      return !!localStorage.getItem('authToken');
+    } catch {
+      return false;
+    }
+  });
 
   useEffect(() => {
     const handleStorageChange = () => {
-      setIsLoggedIn(!!localStorage.getItem('authToken'));
+      try {
+        setIsLoggedIn(!!localStorage.getItem('authToken'));
+      } catch {
+        setIsLoggedIn(false);
+      }
     };
+
     window.addEventListener('storage', handleStorageChange);
-    // Also listen for manual changes (e.g., from login)
-    const interval = setInterval(() => {
-      setIsLoggedIn(!!localStorage.getItem('authToken'));
-    }, 500);
+    window.addEventListener('authChange', handleStorageChange);
+    
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      clearInterval(interval);
+      window.removeEventListener('authChange', handleStorageChange);
     };
   }, []);
 
-  if (!isLoggedIn && location.pathname !== '/login') {
-    return <Navigate to="/login" replace />;
+  if (location.pathname === '/login' || location.pathname === '/logout') {
+    return children;
   }
 
-  if (isLoggedIn && location.pathname === '/login') {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  return <AppShell activePage={location.pathname.slice(1) || 'dashboard'}>{children}</AppShell>;
+  return isLoggedIn ? children : <Navigate to="/login" state={{ from: location }} replace />;
 }
 
 export default function App() {
