@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { isAdmin } from '../utils/auth';
 
 export default function SettingsPage() {
   const [company, setCompany] = useState('Tax Nexus Pvt Ltd');
@@ -15,14 +16,8 @@ export default function SettingsPage() {
   const [testingConnection, setTestingConnection] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState('unknown'); // 'unknown', 'connected', 'failed'
 
-  // Get user role
-  const userRole = useState(() => {
-    try {
-      return localStorage.getItem('role') || 'client';
-    } catch {
-      return 'client';
-    }
-  });
+  // Get user role from JWT token
+  const userIsAdmin = isAdmin();
 
   // Load saved settings from localStorage
   useEffect(() => {
@@ -296,7 +291,8 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {userRole === 'admin' && (
+        {/* Company Information Card - Admin Only */}
+        {userIsAdmin && (
           <div className="card">
             <div className="cardHeader">
               <div className="cardTitle">Company Information</div>
@@ -364,6 +360,19 @@ export default function SettingsPage() {
                   />
                 </label>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Client access denied message */}
+        {!userIsAdmin && (
+          <div className="card">
+            <div className="cardHeader">
+              <div className="cardTitle">Company Information</div>
+            </div>
+            <div className="emptyState">
+              <div className="emptyTitle">Access Restricted</div>
+              <div className="muted">You do not have access to company information settings.</div>
             </div>
           </div>
         )}

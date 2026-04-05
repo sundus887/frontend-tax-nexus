@@ -1,9 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { logout } from '../utils/auth';
 
 export default function LogoutPage() {
   React.useEffect(() => {
-    localStorage.removeItem('authToken');
+    // Use the logout function from auth utils
+    logout();
   }, []);
 
   return (
@@ -11,7 +13,7 @@ export default function LogoutPage() {
       <div className="pageHeader">
         <div>
           <div className="pageTitle">Logged out</div>
-          <div className="pageSubtitle">You have been logged out (mock).</div>
+          <div className="pageSubtitle">You have been logged out successfully.</div>
         </div>
       </div>
 

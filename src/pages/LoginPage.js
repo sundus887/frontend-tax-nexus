@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { adminAPI, clientAPI } from '../services/api';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -17,23 +18,63 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
 
-    // Mock login with role
-    window.setTimeout(() => {
-      if (email === 'admin@company.com' && password === 'admin') {
-        localStorage.setItem('authToken', 'mock-token-123');
-        localStorage.setItem('role', 'admin');
-        localStorage.setItem('userName', 'Admin User');
+    try {
+      // Try admin login first
+      try {
+        const response = await adminAPI.login({ email, password });
+        
+        // Store token and role in frontend
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("role", response.data.user.role);
+        localStorage.setItem("userName", response.data.user.name || 'Admin User');
+        localStorage.setItem("userEmail", response.data.user.email || email);
+        
         navigate('/dashboard');
-      } else if (email === 'client@company.com' && password === 'client') {
-        localStorage.setItem('authToken', 'mock-token-456');
-        localStorage.setItem('role', 'client');
-        localStorage.setItem('userName', 'Client User');
-        navigate('/dashboard');
-      } else {
-        setError('Invalid credentials. Use admin@company.com / admin or client@company.com / client');
+        return;
+      } catch (adminError) {
+        // If admin login fails, try client login
+        try {
+          const response = await clientAPI.login({ email, password });
+          
+          // Store token and role in frontend
+          localStorage.setItem("token", response.data.token);
+          localStorage.setItem("role", response.data.user.role);
+          localStorage.setItem("userName", response.data.user.name || 'Client User');
+          localStorage.setItem("userEmail", response.data.user.email || email);
+          
+          navigate('/dashboard');
+          return;
+        } catch (clientError) {
+          // If both fail, use mock login for demo
+          console.log('Backend login failed, using mock login for demo');
+        }
       }
+
+      // Mock login with role (for demo purposes)
+      window.setTimeout(() => {
+        if (email === 'admin@company.com' && password === 'admin') {
+          localStorage.setItem("token", 'mock-token-123');
+          localStorage.setItem("role", 'admin');
+          localStorage.setItem("userName", 'Admin User');
+          localStorage.setItem("userEmail", 'admin@company.com');
+          navigate('/dashboard');
+        } else if (email === 'client@company.com' && password === 'client') {
+          localStorage.setItem("token", 'mock-token-456');
+          localStorage.setItem("role", 'client');
+          localStorage.setItem("userName", 'Client User');
+          localStorage.setItem("userEmail", 'client@company.com');
+          navigate('/dashboard');
+        } else {
+          setError('Invalid credentials. Use admin@company.com / admin or client@company.com / client');
+        }
+        setLoading(false);
+      }, 800);
+
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('Login failed. Please try again.');
       setLoading(false);
-    }, 800);
+    }
   }
 
   return (

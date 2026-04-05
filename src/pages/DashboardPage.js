@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { isAdmin } from '../utils/auth';
 
 function StatCard({ title, value, subText, rightText, variant = 'neutral' }) {
   return (
@@ -75,26 +76,27 @@ function RecentInvoices({ rows }) {
 }
 
 export default function DashboardPage() {
+  // Get user role from JWT token
+  const userIsAdmin = isAdmin();
+
   const stats = useMemo(
     () => ({
-      totalInvoices: 1248,
-      validInvoices: 1183,
-      invalidInvoices: 65,
-      apiStatus: 'Connected',
-      lastSync: '2 minutes ago',
+      totalInvoices: 1847,
+      validInvoices: 1751,
+      invalidInvoices: 96,
+      totalTax: 1250000,
     }),
     []
   );
 
-  const dailyBars = useMemo(
+  const monthly = useMemo(
     () => [
-      { label: 'Mar 26', valid: 45, invalid: 0 },
-      { label: 'Mar 27', valid: 52, invalid: 0 },
-      { label: 'Mar 28', valid: 0, invalid: 48 },
-      { label: 'Mar 29', valid: 61, invalid: 0 },
-      { label: 'Mar 30', valid: 0, invalid: 55 },
-      { label: 'Mar 31', valid: 68, invalid: 0 },
-      { label: 'Apr 01', valid: 75, invalid: 0 },
+      { label: 'Jan', valid: 145, invalid: 8 },
+      { label: 'Feb', valid: 162, invalid: 12 },
+      { label: 'Mar', valid: 189, invalid: 15 },
+      { label: 'Apr', valid: 178, invalid: 9 },
+      { label: 'May', valid: 195, invalid: 11 },
+      { label: 'Jun', valid: 210, invalid: 7 },
     ],
     []
   );
@@ -148,39 +150,76 @@ export default function DashboardPage() {
         <StatCard
           title="Invalid Invoices"
           value={stats.invalidInvoices.toLocaleString()}
-          subText="5.2% require attention"
+          subText="5.2% rejection rate"
           variant="bad"
         />
-        <div className="card statCard">
-          <div className="statTop">
-            <div className="statTitle">FBR API Status</div>
-            <div className="statBadge good">⟐</div>
-          </div>
-          <div className="apiStatus">
-            <span className="pill pillOk">{stats.apiStatus}</span>
-          </div>
-          <div className="statSub">
-            <span className="muted">Last sync: {stats.lastSync}</span>
-          </div>
-        </div>
+        <StatCard
+          title="Total Tax Collected"
+          value={`PKR ${(stats.totalTax / 1000).toFixed(1)}K`}
+          subText="This month"
+          variant="neutral"
+        />
       </div>
 
       <div className="grid2">
         <div className="card">
           <div className="cardHeader">
-            <div className="cardTitle">Daily Invoice Processing</div>
+            <div className="cardTitle">Monthly Validation Status</div>
           </div>
-          <RealBarChart bars={dailyBars} />
+          <RealBarChart bars={monthly} />
         </div>
         <div className="card">
           <div className="cardHeader">
-            <div className="cardTitle">Weekly Trend</div>
+            <div className="cardTitle">Weekly Invoice Trend</div>
           </div>
           <RealLineChart points={weekly} />
         </div>
       </div>
 
-      <div className="grid1">
+      {/* Admin-only section */}
+      {userIsAdmin && (
+        <div className="card">
+          <div className="cardHeader">
+            <div className="cardTitle">Admin Management</div>
+          </div>
+          <div className="form">
+            <div className="formRow">
+              <div className="field">
+                <div className="label">Admin Actions</div>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <button type="button" className="primaryBtn">
+                    Create Company
+                  </button>
+                  <button type="button" className="primaryBtn">
+                    Manage Users
+                  </button>
+                  <button type="button" className="ghostBtn">
+                    System Settings
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Client-only message */}
+      {!userIsAdmin && (
+        <div className="card">
+          <div className="cardHeader">
+            <div className="cardTitle">User Access</div>
+          </div>
+          <div className="emptyState">
+            <div className="emptyTitle">Limited Access</div>
+            <div className="muted">You do not have access to admin management features.</div>
+          </div>
+        </div>
+      )}
+
+      <div className="card">
+        <div className="cardHeader">
+          <div className="cardTitle">Recent Invoices</div>
+        </div>
         <RecentInvoices rows={recent} />
       </div>
     </div>

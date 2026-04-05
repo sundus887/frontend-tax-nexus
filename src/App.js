@@ -9,24 +9,17 @@ import SettingsPage from './pages/SettingsPage';
 import LogoutPage from './pages/LogoutPage';
 import NotFoundPage from './pages/NotFoundPage';
 import LoginPage from './pages/LoginPage';
+import { isAuthenticated } from './utils/auth';
 
 function AuthWrapper({ children }) {
   const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    try {
-      return !!localStorage.getItem('authToken');
-    } catch {
-      return false;
-    }
+    return isAuthenticated();
   });
 
   useEffect(() => {
     const handleStorageChange = () => {
-      try {
-        setIsLoggedIn(!!localStorage.getItem('authToken'));
-      } catch {
-        setIsLoggedIn(false);
-      }
+      setIsLoggedIn(isAuthenticated());
     };
 
     window.addEventListener('storage', handleStorageChange);

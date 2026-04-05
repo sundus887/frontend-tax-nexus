@@ -1,9 +1,20 @@
 import React, { useMemo, useState } from 'react';
+import { getUserInfo } from '../utils/auth';
 
 export default function Topbar() {
   const [environment, setEnvironment] = useState('Sandbox');
 
   const userInfo = useMemo(() => {
+    const user = getUserInfo();
+    if (user) {
+      return {
+        role: user.role,
+        userName: user.name,
+        userEmail: user.email
+      };
+    }
+    
+    // Fallback for demo purposes
     try {
       const role = localStorage.getItem('role') || 'client';
       const userName = localStorage.getItem('userName') || 'User';
