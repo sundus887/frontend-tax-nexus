@@ -6,7 +6,7 @@ export default function SettingsPage() {
   const [email, setEmail] = useState('info@taxnexus.com');
   const [phone, setPhone] = useState('+92 300 1234567');
   const [address, setAddress] = useState('123 Business Avenue, Lahore, Pakistan');
-  const [endpoint, setEndpoint] = useState('https://api.fbr.gov.pk');
+  const [endpoint, setEndpoint] = useState('https://taxnexus-backend.onrender.com');
   const [apiKey, setApiKey] = useState('FBR_API_TOKEN_12345');
   const [autoBackup, setAutoBackup] = useState(true);
   const [emailNotifications, setEmailNotifications] = useState(true);
@@ -26,7 +26,7 @@ export default function SettingsPage() {
         setEmail(settings.email || 'info@taxnexus.com');
         setPhone(settings.phone || '+92 300 1234567');
         setAddress(settings.address || '123 Business Avenue, Lahore, Pakistan');
-        setEndpoint(settings.endpoint || 'https://api.fbr.gov.pk');
+        setEndpoint(settings.endpoint || 'https://taxnexus-backend.onrender.com');
         setApiKey(settings.apiKey || 'FBR_API_TOKEN_12345');
         setAutoBackup(settings.autoBackup !== undefined ? settings.autoBackup : true);
         setEmailNotifications(settings.emailNotifications !== undefined ? settings.emailNotifications : true);
@@ -36,7 +36,7 @@ export default function SettingsPage() {
       const savedApiSettings = localStorage.getItem('apiSettings');
       if (savedApiSettings) {
         const apiSettings = JSON.parse(savedApiSettings);
-        setEndpoint(apiSettings.endpoint || 'https://api.fbr.gov.pk');
+        setEndpoint(apiSettings.endpoint || 'https://taxnexus-backend.onrender.com');
         setApiKey(apiSettings.apiKey || 'FBR_API_TOKEN_12345');
       }
     } catch (error) {
@@ -142,7 +142,7 @@ export default function SettingsPage() {
   const onResetApiCredentials = () => {
     if (window.confirm('⚠️ Are you sure you want to reset API credentials?\n\nThis will restore the default API endpoint and key.')) {
       try {
-        setEndpoint('https://api.fbr.gov.pk');
+        setEndpoint('https://taxnexus-backend.onrender.com');
         setApiKey('FBR_API_TOKEN_12345');
         localStorage.removeItem('apiSettings');
         setSavedAt('');
@@ -170,23 +170,27 @@ export default function SettingsPage() {
   };
 
   const onReset = () => {
-    try {
-      setCompany('Tax Nexus Pvt Ltd');
-      setNtn('1234567-8');
-      setEmail('info@taxnexus.com');
-      setPhone('+92 300 1234567');
-      setAddress('123 Business Avenue, Lahore, Pakistan');
-      setEndpoint('https://api.fbr.gov.pk');
-      setApiKey('FBR_API_TOKEN_12345');
-      setAutoBackup(true);
-      setEmailNotifications(true);
-      setDarkMode(false);
-      setSavedAt('');
-      localStorage.removeItem('settings');
-      localStorage.removeItem('apiSettings');
-    } catch (error) {
-      console.error('Error resetting settings:', error);
-      window.alert('❌ Error resetting settings: ' + error.message);
+    if (window.confirm('⚠️ Are you sure you want to reset all settings to default values?')) {
+      try {
+        setCompany('Tax Nexus Pvt Ltd');
+        setNtn('1234567-8');
+        setEmail('info@taxnexus.com');
+        setPhone('+92 300 1234567');
+        setAddress('123 Business Avenue, Lahore, Pakistan');
+        setEndpoint('https://taxnexus-backend.onrender.com');
+        setApiKey('FBR_API_TOKEN_12345');
+        setAutoBackup(true);
+        setEmailNotifications(true);
+        setDarkMode(false);
+        setConnectionStatus('unknown');
+        localStorage.removeItem('settings');
+        localStorage.removeItem('apiSettings');
+        setSavedAt('');
+        window.alert('✅ All settings have been reset to default values.');
+      } catch (error) {
+        console.error('Error resetting settings:', error);
+        window.alert('❌ Error resetting settings: ' + error.message);
+      }
     }
   };
 
@@ -210,7 +214,7 @@ export default function SettingsPage() {
           <div className="form">
             <div className="formRow">
               <label className="field">
-                <div className="label">FBR API Endpoint</div>
+                <div className="label">TAX NEXUS API Endpoint</div>
                 <input 
                   className="input" 
                   value={endpoint} 
