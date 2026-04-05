@@ -4,6 +4,15 @@ export const getUserRole = () => {
   const token = localStorage.getItem("token");
   if (!token) return null;
   
+  // For mock tokens, get role from localStorage
+  if (token.startsWith('mock-token-')) {
+    try {
+      return localStorage.getItem('role') || 'client';
+    } catch {
+      return 'client';
+    }
+  }
+  
   try {
     const decoded = jwtDecode(token);
     return decoded.role; // "admin" or "client"
@@ -25,6 +34,21 @@ export const getUserInfo = () => {
   const token = localStorage.getItem("token");
   if (!token) return null;
   
+  // For mock tokens, get info from localStorage
+  if (token.startsWith('mock-token-')) {
+    try {
+      return {
+        role: localStorage.getItem('role') || 'client',
+        name: localStorage.getItem('userName') || 'User',
+        email: localStorage.getItem('userEmail') || 'user@company.com',
+        userId: 'mock-user-id',
+        exp: Date.now() / 1000 + 3600 // Mock expiration (1 hour from now)
+      };
+    } catch {
+      return null;
+    }
+  }
+  
   try {
     const decoded = jwtDecode(token);
     return {
@@ -44,13 +68,19 @@ export const isTokenExpired = () => {
   const token = localStorage.getItem("token");
   if (!token) return true;
   
+  // For mock tokens, don't check expiration
+  if (token.startsWith('mock-token-')) {
+    return false;
+  }
+  
   try {
     const decoded = jwtDecode(token);
     const currentTime = Date.now() / 1000;
     return decoded.exp < currentTime;
   } catch (err) {
     console.error('Error decoding token:', err);
-    return true;
+    // For mock tokens, return false (not expired)
+    return token.startsWith('mock-token-') ? false : true;
   }
 };
 
@@ -66,7 +96,12 @@ export const isAuthenticated = () => {
   const token = localStorage.getItem("token");
   if (!token) return false;
   
-  // Check if token is expired
+  // For mock tokens, just check if token exists
+  if (token.startsWith('mock-token-')) {
+    return true;
+  }
+  
+  // For real JWT tokens, check if token is expired
   if (isTokenExpired()) {
     logout();
     return false;
