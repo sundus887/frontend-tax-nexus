@@ -17,13 +17,20 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
 
-    // Mock login
+    // Mock login with role
     window.setTimeout(() => {
       if (email === 'admin@company.com' && password === 'admin') {
         localStorage.setItem('authToken', 'mock-token-123');
+        localStorage.setItem('role', 'admin');
+        localStorage.setItem('userName', 'Admin User');
+        navigate('/dashboard');
+      } else if (email === 'client@company.com' && password === 'client') {
+        localStorage.setItem('authToken', 'mock-token-456');
+        localStorage.setItem('role', 'client');
+        localStorage.setItem('userName', 'Client User');
         navigate('/dashboard');
       } else {
-        setError('Invalid credentials. Use admin@company.com / admin');
+        setError('Invalid credentials. Use admin@company.com / admin or client@company.com / client');
       }
       setLoading(false);
     }, 800);

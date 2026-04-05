@@ -3,7 +3,25 @@ import React, { useMemo, useState } from 'react';
 export default function Topbar() {
   const [environment, setEnvironment] = useState('Sandbox');
 
-  const userEmail = useMemo(() => 'admin@company.com', []);
+  const userInfo = useMemo(() => {
+    try {
+      const role = localStorage.getItem('role') || 'client';
+      const userName = localStorage.getItem('userName') || 'User';
+      const userEmail = role === 'admin' ? 'admin@company.com' : 'client@company.com';
+      
+      return {
+        role,
+        userName,
+        userEmail
+      };
+    } catch {
+      return {
+        role: 'client',
+        userName: 'User',
+        userEmail: 'client@company.com'
+      };
+    }
+  }, []);
 
   return (
     <div className="topbar">
@@ -31,11 +49,11 @@ export default function Topbar() {
 
         <div className="topbarUser">
           <div className="topbarUserText">
-            <div className="topbarUserName">Admin User</div>
-            <div className="topbarUserEmail">{userEmail}</div>
+            <div className="topbarUserName">{userInfo.userName}</div>
+            <div className="topbarUserEmail">{userInfo.userEmail}</div>
           </div>
           <div className="avatar" aria-label="User avatar">
-            A
+            {userInfo.role === 'admin' ? 'A' : 'C'}
           </div>
         </div>
       </div>

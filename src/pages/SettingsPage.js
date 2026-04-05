@@ -15,6 +15,15 @@ export default function SettingsPage() {
   const [testingConnection, setTestingConnection] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState('unknown'); // 'unknown', 'connected', 'failed'
 
+  // Get user role
+  const userRole = useState(() => {
+    try {
+      return localStorage.getItem('role') || 'client';
+    } catch {
+      return 'client';
+    }
+  });
+
   // Load saved settings from localStorage
   useEffect(() => {
     try {
@@ -65,48 +74,19 @@ export default function SettingsPage() {
     }
   }, [company, ntn, email, phone, address, endpoint, apiKey, autoBackup, emailNotifications, darkMode]);
 
-  const onSave = (e) => {
-    if (e) e.preventDefault();
-    
-    try {
-      const settings = {
-        company,
-        ntn,
-        email,
-        phone,
-        address,
-        endpoint,
-        apiKey,
-        autoBackup,
-        emailNotifications,
-        darkMode
-      };
-      
-      localStorage.setItem('settings', JSON.stringify(settings));
-      setSavedAt(new Date().toLocaleString());
-      
-      setTimeout(() => {
-        setSavedAt('');
-      }, 3000);
-    } catch (error) {
-      console.error('Error saving settings:', error);
-      window.alert('❌ Error saving settings: ' + error.message);
-    }
-  };
-
   const onTestConnection = async () => {
     const startTime = Date.now();
     setTestingConnection(true);
     setConnectionStatus('testing');
-    
+
     try {
       // Simulate API connection test
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       const responseTime = Date.now() - startTime;
       setConnectionStatus('connected');
       window.alert('✅ API Connection Successful!\n\nServer is responding correctly.\nResponse Time: ' + responseTime + 'ms');
-      
+
     } catch (error) {
       console.error('Connection test error:', error);
       setConnectionStatus('failed');
@@ -122,14 +102,14 @@ export default function SettingsPage() {
         endpoint,
         apiKey
       };
-      
+
       localStorage.setItem('apiSettings', JSON.stringify(apiSettings));
       setSavedAt(new Date().toLocaleString());
-      
+
       setTimeout(() => {
         setSavedAt('');
       }, 3000);
-      
+
       // Show success message
       const maskedKey = apiKey ? (apiKey.length > 8 ? apiKey.substring(0, 8) + '...' : apiKey) : 'N/A';
       window.alert('✅ API Settings Saved!\n\nEndpoint: ' + endpoint + '\nAPI Key: ' + maskedKey);
@@ -155,17 +135,32 @@ export default function SettingsPage() {
     }
   };
 
-  const onClearAllInvoices = () => {
-    if (window.confirm('⚠️ Are you sure you want to clear all invoices?\n\nThis action cannot be undone and will permanently delete all invoice records from the system.')) {
-      try {
-        localStorage.removeItem('invoices');
-        localStorage.removeItem('invoiceHistory');
-        localStorage.removeItem('draftInvoices');
-        window.alert('✅ All invoices have been cleared successfully.');
-      } catch (error) {
-        console.error('Error clearing invoices:', error);
-        window.alert('❌ Error clearing invoices: ' + error.message);
-      }
+  const onSave = () => {
+    try {
+      const settings = {
+        company,
+        ntn,
+        email,
+        phone,
+        address,
+        endpoint,
+        apiKey,
+        autoBackup,
+        emailNotifications,
+        darkMode
+      };
+
+      localStorage.setItem('settings', JSON.stringify(settings));
+      setSavedAt(new Date().toLocaleString());
+
+      setTimeout(() => {
+        setSavedAt('');
+      }, 3000);
+
+      window.alert('✅ Settings saved successfully!');
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      window.alert('❌ Error saving settings: ' + error.message);
     }
   };
 
@@ -190,6 +185,20 @@ export default function SettingsPage() {
       } catch (error) {
         console.error('Error resetting settings:', error);
         window.alert('❌ Error resetting settings: ' + error.message);
+      }
+    }
+  };
+
+  const onClearAllInvoices = () => {
+    if (window.confirm('⚠️ Are you sure you want to clear all invoices?\n\nThis action cannot be undone and will permanently delete all invoice records from the system.')) {
+      try {
+        localStorage.removeItem('invoices');
+        localStorage.removeItem('invoiceHistory');
+        localStorage.removeItem('draftInvoices');
+        window.alert('✅ All invoices have been cleared successfully.');
+      } catch (error) {
+        console.error('Error clearing invoices:', error);
+        window.alert('❌ Error clearing invoices: ' + error.message);
       }
     }
   };
@@ -287,75 +296,77 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="card">
-          <div className="cardHeader">
-            <div className="cardTitle">Company Information</div>
+        {userRole === 'admin' && (
+          <div className="card">
+            <div className="cardHeader">
+              <div className="cardTitle">Company Information</div>
+            </div>
+
+            <div className="form">
+              <div className="formRow">
+                <label className="field">
+                  <div className="label">Company Name</div>
+                  <input 
+                    className="input" 
+                    value={company} 
+                    onChange={e => setCompany(e.target.value)} 
+                    placeholder="Enter company name"
+                  />
+                </label>
+              </div>
+
+              <div className="formRow">
+                <label className="field">
+                  <div className="label">NTN (National Tax Number)</div>
+                  <input 
+                    className="input" 
+                    value={ntn} 
+                    onChange={e => setNtn(e.target.value)} 
+                    placeholder="Enter NTN number"
+                  />
+                </label>
+              </div>
+
+              <div className="formRow">
+                <label className="field">
+                  <div className="label">Email Address</div>
+                  <input 
+                    className="input" 
+                    type="email" 
+                    value={email} 
+                    onChange={e => setEmail(e.target.value)} 
+                    placeholder="Enter email address"
+                  />
+                </label>
+              </div>
+
+              <div className="formRow">
+                <label className="field">
+                  <div className="label">Phone Number</div>
+                  <input 
+                    className="input" 
+                    value={phone} 
+                    onChange={e => setPhone(e.target.value)} 
+                    placeholder="Enter phone number"
+                  />
+                </label>
+              </div>
+
+              <div className="formRow">
+                <label className="field">
+                  <div className="label">Business Address</div>
+                  <textarea 
+                    className="input" 
+                    rows="3" 
+                    value={address} 
+                    onChange={e => setAddress(e.target.value)} 
+                    placeholder="Enter business address"
+                  />
+                </label>
+              </div>
+            </div>
           </div>
-
-          <div className="form">
-            <div className="formRow">
-              <label className="field">
-                <div className="label">Company Name</div>
-                <input 
-                  className="input" 
-                  value={company} 
-                  onChange={e => setCompany(e.target.value)} 
-                  placeholder="Enter company name"
-                />
-              </label>
-            </div>
-
-            <div className="formRow">
-              <label className="field">
-                <div className="label">NTN (National Tax Number)</div>
-                <input 
-                  className="input" 
-                  value={ntn} 
-                  onChange={e => setNtn(e.target.value)} 
-                  placeholder="Enter NTN number"
-                />
-              </label>
-            </div>
-
-            <div className="formRow">
-              <label className="field">
-                <div className="label">Email Address</div>
-                <input 
-                  className="input" 
-                  type="email" 
-                  value={email} 
-                  onChange={e => setEmail(e.target.value)} 
-                  placeholder="Enter email address"
-                />
-              </label>
-            </div>
-
-            <div className="formRow">
-              <label className="field">
-                <div className="label">Phone Number</div>
-                <input 
-                  className="input" 
-                  value={phone} 
-                  onChange={e => setPhone(e.target.value)} 
-                  placeholder="Enter phone number"
-                />
-              </label>
-            </div>
-
-            <div className="formRow">
-              <label className="field">
-                <div className="label">Business Address</div>
-                <textarea 
-                  className="input" 
-                  rows="3" 
-                  value={address} 
-                  onChange={e => setAddress(e.target.value)} 
-                  placeholder="Enter business address"
-                />
-              </label>
-            </div>
-          </div>
-        </div>
+        )}
 
         <div className="card">
           <div className="cardHeader">
