@@ -57,28 +57,23 @@ export default function CreateCompany() {
     setSuccess('');
 
     try {
-      const token = localStorage.getItem('adminToken');
-      
-      // Try API call first
+      // API call to create company
       const response = await adminAPI.createCompany(formData);
       
       setSuccess('Company created successfully!');
       
       // Add to recent activity
-      setTimeout(() => {
-        const activity = {
-          id: Date.now(),
-          type: 'company',
-          message: `Company "${formData.companyName}" created`,
-          time: 'Just now',
-          status: 'success'
-        };
-        
-        // Store activity in localStorage for demo
-        const activities = JSON.parse(localStorage.getItem('adminActivities') || '[]');
-        activities.unshift(activity);
-        localStorage.setItem('adminActivities', JSON.stringify(activities.slice(0, 10)));
-      }, 100);
+      const activity = {
+        id: Date.now(),
+        type: 'company',
+        message: `Company "${formData.companyName}" created`,
+        time: 'Just now',
+        status: 'success'
+      };
+      
+      const activities = JSON.parse(localStorage.getItem('adminActivities') || '[]');
+      activities.unshift(activity);
+      localStorage.setItem('adminActivities', JSON.stringify(activities.slice(0, 10)));
       
       // Reset form
       setFormData({
@@ -92,49 +87,20 @@ export default function CreateCompany() {
 
       // Redirect after delay
       setTimeout(() => {
-        navigate('/admin/dashboard');
-      }, 2000);
+        navigate('/admin/create-user');
+      }, 1500);
 
     } catch (err) {
       console.error('API Error:', err);
       
-      // For demo, simulate success even if API fails
       if (err.response?.status === 401) {
         setError('Authentication failed. Please login again.');
         localStorage.removeItem('adminToken');
         navigate('/admin/login');
+      } else if (err.response?.data?.message) {
+        setError(err.response.data.message);
       } else {
-        // Show success for demo purposes
-        setSuccess('Company created successfully! (Demo Mode)');
-        
-        // Add to recent activity
-        setTimeout(() => {
-          const activity = {
-            id: Date.now(),
-            type: 'company',
-            message: `Company "${formData.companyName}" created (Demo)`,
-            time: 'Just now',
-            status: 'success'
-          };
-          
-          const activities = JSON.parse(localStorage.getItem('adminActivities') || '[]');
-          activities.unshift(activity);
-          localStorage.setItem('adminActivities', JSON.stringify(activities.slice(0, 10)));
-        }, 100);
-        
-        // Reset form
-        setFormData({
-          companyName: '',
-          ntn: '',
-          address: '',
-          province: '',
-          apiToken: '',
-          environment: 'sandbox'
-        });
-
-        setTimeout(() => {
-          navigate('/admin/dashboard');
-        }, 2000);
+        setError('Failed to create company. Please check your connection and try again.');
       }
     } finally {
       setLoading(false);

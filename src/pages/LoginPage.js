@@ -43,15 +43,21 @@ export default function LoginPage() {
       const data = await response.json();
       console.log('✅ Login Response:', data);
 
+      // Store token and user info
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('role', data.user.role);
+      localStorage.setItem('userName', data.user.name || (data.user.role === 'admin' ? 'Admin User' : 'Client User'));
+      localStorage.setItem('userEmail', data.user.email || email);
+      
+      // Redirect based on role
       if (data.user.role === 'admin') {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('role', data.user.role);
-        localStorage.setItem('userName', data.user.name || 'Admin User');
-        localStorage.setItem('userEmail', data.user.email || email);
         console.log('✅ Admin login successful');
         navigate('/admin/dashboard');
+      } else if (data.user.role === 'client') {
+        console.log('✅ Client login successful');
+        navigate('/dashboard');
       } else {
-        setError('Only admin credentials allowed');
+        setError('Invalid user role');
         setLoading(false);
         return;
       }

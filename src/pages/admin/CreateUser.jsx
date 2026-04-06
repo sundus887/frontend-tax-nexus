@@ -21,22 +21,29 @@ export default function CreateUser() {
 
   const fetchCompanies = async () => {
     try {
-      const token = localStorage.getItem('adminToken');
+      setFetchingCompanies(true);
+      setError('');
       const response = await adminAPI.getCompanies();
-      setCompanies(response.data || [
-        { id: 1, name: 'ABC Corporation', ntn: '1234567-8' },
-        { id: 2, name: 'XYZ Industries', ntn: '8765432-1' },
-        { id: 3, name: 'Tech Solutions Ltd', ntn: '4567890-3' }
-      ]);
+      
+      // Handle different response structures
+      let companiesData = [];
+      if (Array.isArray(response.data)) {
+        companiesData = response.data;
+      } else if (response.data?.companies && Array.isArray(response.data.companies)) {
+        companiesData = response.data.companies;
+      } else if (response.data?.data && Array.isArray(response.data.data)) {
+        companiesData = response.data.data;
+      }
+      
+      setCompanies(companiesData);
+      
+      if (companiesData.length === 0) {
+        setError('No companies found. Please create a company first.');
+      }
     } catch (err) {
       console.error('Failed to fetch companies:', err);
-      // Set mock companies for demo
-      setCompanies([
-        { id: 1, name: 'ABC Corporation', ntn: '1234567-8' },
-        { id: 2, name: 'XYZ Industries', ntn: '8765432-1' },
-        { id: 3, name: 'Tech Solutions Ltd', ntn: '4567890-3' }
-      ]);
-      setError('Failed to load companies. Using demo data.');
+      setCompanies([]);
+      setError('Failed to load companies from server. Please check your connection.');
     } finally {
       setFetchingCompanies(false);
     }
@@ -247,9 +254,19 @@ export default function CreateUser() {
               </div>
 
               <div>
-                <label htmlFor="companyId" className="block text-sm font-medium text-gray-700">
-                  Select Company *
-                </label>
+                <div className="flex justify-between items-center">
+                  <label htmlFor="companyId" className="block text-sm font-medium text-gray-700">
+                    Select Company *
+                  </label>
+                  <button
+                    type="button"
+                    onClick={fetchCompanies}
+                    disabled={fetchingCompanies}
+                    className="text-xs text-blue-600 hover:text-blue-800 underline disabled:opacity-50"
+                  >
+                    {fetchingCompanies ? 'Refreshing...' : 'Refresh List'}
+                  </button>
+                </div>
                 {fetchingCompanies ? (
                   <div className="mt-1">
                     <div className="flex items-center">
