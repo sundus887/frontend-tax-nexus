@@ -2,6 +2,20 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminAPI, clientAPI } from '../services/api';
 
+// Test backend connection
+const testBackendConnection = async () => {
+  try {
+    console.log('🔍 Testing backend connection...');
+    const response = await fetch('https://taxnexus-backend.onrender.com/api/health');
+    const data = await response.json();
+    console.log('✅ Backend is running:', data);
+    return true;
+  } catch (error) {
+    console.log('❌ Backend connection failed:', error);
+    return false;
+  }
+};
+
 export default function LoginPage() {
   const [loginType, setLoginType] = useState("company");
   const [email, setEmail] = useState('');
@@ -30,22 +44,49 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
 
+    // Test backend connection first
+    const isBackendReachable = await testBackendConnection();
+    
     try {
       // Try backend login first
       let response;
       let role;
 
       try {
+        console.log('🔍 Attempting backend login...');
+        console.log('📧 Email:', email);
+        console.log('🔐 Login Type:', loginType);
+        console.log('🌐 Backend URL:', 'https://taxnexus-backend.onrender.com/api');
+        console.log('🔌 Backend Reachable:', isBackendReachable);
+        
         if (loginType === "admin") {
+          console.log('👤 Trying admin login...');
           response = await adminAPI.login({ email, password });
+          console.log('✅ Admin login response:', response);
           role = response.data.user.role;
         } else {
+          console.log('👤 Trying client login...');
           response = await clientAPI.login({ email, password });
+          console.log('✅ Client login response:', response);
           role = response.data.user.role;
         }
       } catch (backendError) {
         // Fallback to mock login with STRICT role-specific validation
-        console.log('Backend login failed, using mock login for demo');
+        console.log('❌ Backend login failed!');
+        console.log('🔍 Backend Error Details:', backendError);
+        console.log('📊 Error Status:', backendError.response?.status);
+        console.log('📝 Error Message:', backendError.response?.data?.message || backendError.message);
+        console.log('🌐 Request URL:', backendError.config?.baseURL + backendError.config?.url);
+        
+        if (backendError.response?.status === 404) {
+          console.log('🚫 Backend endpoint not found - using mock login');
+        } else if (backendError.response?.status === 500) {
+          console.log('💥 Backend server error - using mock login');
+        } else if (backendError.code === 'NETWORK_ERROR') {
+          console.log('🌐 Network error - backend not reachable');
+        } else {
+          console.log('❓ Unknown error - using mock login');
+        }
         
         if (loginType === "admin") {
           // STRICT: Only allow admin credentials when admin is selected
