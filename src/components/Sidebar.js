@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { isAdmin } from '../utils/auth';
 import {
@@ -12,7 +12,20 @@ import {
 
 export default function Sidebar({ activePage }) {
   const [collapsed, setCollapsed] = useState(false);
-  const userIsAdmin = isAdmin();
+  const [userIsAdmin, setUserIsAdmin] = useState(() => isAdmin());
+
+  // Listen for storage changes to update role
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setUserIsAdmin(isAdmin());
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    // Also check on mount
+    setUserIsAdmin(isAdmin());
+    
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   // Role-based navigation items
   const NAV_ITEMS = useMemo(() => {
