@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "name": "invoicing-app",
   "builds": [
     {
       "src": "package.json",
@@ -15,16 +16,20 @@
       "dest": "/static/$1"
     },
     {
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|ico|svg|json|woff|woff2|ttf|eot))",
+      "dest": "/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.html"
     }
   ],
-  "buildCommand": "CI=true npm run build",
+  "buildCommand": "npm run build",
   "outputDirectory": "build",
   "installCommand": "npm install",
+  "framework": "create-react-app",
   "env": {
     "NODE_ENV": "production",
-    "CI": "true",
     "GENERATE_SOURCEMAP": "false"
   }
 }

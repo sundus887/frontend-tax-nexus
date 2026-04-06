@@ -1,20 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { adminAPI, clientAPI } from '../services/api';
-
-// Test backend connection
-const testBackendConnection = async () => {
-  try {
-    console.log('🔍 Testing backend connection...');
-    const response = await fetch('https://taxnexus-backend.onrender.com/api/health');
-    const data = await response.json();
-    console.log('✅ Backend is running:', data);
-    return true;
-  } catch (error) {
-    console.log('❌ Backend connection failed:', error);
-    return false;
-  }
-};
 
 export default function LoginPage() {
   const [loginType, setLoginType] = useState("company");
@@ -24,7 +9,6 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Auto-fill credentials when login type changes
   React.useEffect(() => {
     if (loginType === "admin") {
       setEmail('admin@company.com');
@@ -33,7 +17,7 @@ export default function LoginPage() {
       setEmail('client@company.com');
       setPassword('client');
     }
-    setError(''); // Clear error when switching types
+    setError('');
   }, [loginType]);
 
   const handleLogin = async () => {
@@ -50,7 +34,6 @@ export default function LoginPage() {
       console.log('🔐 Login Type:', loginType);
       console.log('🌐 Backend URL:', 'https://taxnexus-backend.onrender.com/api');
       
-      // Login API call
       const response = await fetch('https://taxnexus-backend.onrender.com/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -60,9 +43,7 @@ export default function LoginPage() {
       const data = await response.json();
       console.log('✅ Login Response:', data);
 
-      // Check role correctly
       if (data.user.role === 'admin') {
-        // Allow admin login
         localStorage.setItem('token', data.token);
         localStorage.setItem('role', data.user.role);
         localStorage.setItem('userName', data.user.name || 'Admin User');
@@ -70,13 +51,11 @@ export default function LoginPage() {
         console.log('✅ Admin login successful');
         navigate('/admin/dashboard');
       } else {
-        // Show "Only admin credentials allowed" error
         setError('Only admin credentials allowed');
         setLoading(false);
         return;
       }
     } catch (backendError) {
-      // Fallback to mock login with STRICT role-specific validation
       console.log('❌ Backend login failed!');
       console.log('🔍 Backend Error Details:', backendError);
       console.log('📊 Error Status:', backendError.response?.status);
@@ -84,7 +63,6 @@ export default function LoginPage() {
       console.log('🌐 Request URL:', 'https://taxnexus-backend.onrender.com/api/auth/login');
       
       if (loginType === "admin") {
-        // STRICT: Only allow admin credentials when admin is selected
         if (email === 'admin@company.com' && password === 'admin') {
           localStorage.setItem("token", 'mock-token-123');
           localStorage.setItem("role", 'admin');
@@ -98,7 +76,6 @@ export default function LoginPage() {
           return;
         }
       } else {
-        // STRICT: Only allow client credentials when company is selected
         if (email === 'client@company.com' && password === 'client') {
           localStorage.setItem("token", 'mock-token-456');
           localStorage.setItem("role", 'client');
@@ -112,9 +89,7 @@ export default function LoginPage() {
           return;
         }
       }
-    } catch (err) {
-      console.error('Login error:', err);
-      setError('Login failed. Please try again.');
+    } finally {
       setLoading(false);
     }
   };
@@ -153,7 +128,6 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Login Type Toggle */}
         <div style={{ 
           display: 'flex', 
           backgroundColor: '#f1f5f9', 
@@ -199,7 +173,6 @@ export default function LoginPage() {
           </button>
         </div>
 
-        {/* Login Form */}
         <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
           <div style={{ marginBottom: '1rem' }}>
             <label style={{ 
@@ -289,7 +262,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Demo Credentials */}
         <div style={{ 
           marginTop: '1.5rem', 
           padding: '1rem', 
