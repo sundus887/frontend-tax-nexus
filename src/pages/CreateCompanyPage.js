@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { isAdmin } from '../utils/auth';
 
 export default function CreateCompanyPage() {
+  // eslint-disable-next-line no-unused-vars
   const [companies, setCompanies] = useState([]);
   const [companyData, setCompanyData] = useState({
     name: '',
