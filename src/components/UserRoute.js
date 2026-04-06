@@ -1,11 +1,16 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { isClient } from '../utils/auth';
+
+// Check if user has user role (company user)
+const isUser = () => {
+  const role = localStorage.getItem('role');
+  return role === 'user';
+};
 
 export default function UserRoute({ children }) {
-  const userIsClient = isClient();
+  const userIsUser = isUser();
 
-  if (!userIsClient) {
+  if (!userIsUser) {
     return <Navigate to="/login" replace />;
   }
 

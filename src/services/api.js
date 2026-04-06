@@ -10,11 +10,10 @@ const api = axios.create({
   },
 });
 
-// Request interceptor to add auth token
+// Request interceptor to add JWT token automatically
 api.interceptors.request.use(
   (config) => {
-    // Try adminToken first (for admin routes), then token (for client routes)
-    const token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+    const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -25,12 +24,12 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor to handle errors
+// Response interceptor to handle 401 errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid
+      // Token expired or invalid - clear storage and redirect to login
       localStorage.removeItem('token');
       localStorage.removeItem('role');
       localStorage.removeItem('userName');
@@ -43,9 +42,6 @@ api.interceptors.response.use(
 
 // Admin API endpoints
 export const adminAPI = {
-  // Authentication
-  login: (credentials) => api.post('/admin/login', credentials),
-  
   // Companies
   createCompany: (companyData) => api.post('/admin/company', companyData),
   getCompanies: () => api.get('/admin/companies'),
@@ -60,26 +56,20 @@ export const adminAPI = {
   
   // Dashboard stats
   getStats: () => api.get('/admin/stats'),
-  getRecentActivity: () => api.get('/admin/activity'),
-  
-  // Connection test
-  testConnection: () => api.get('/health'),
 };
 
-// Client API endpoints (for regular users)
+// Client API endpoints
 export const clientAPI = {
-  // Authentication
-  login: (credentials) => api.post('/client/login', credentials),
-  
   // Invoices
-  getInvoices: () => api.get('/client/invoices'),
-  createInvoice: (invoiceData) => api.post('/client/invoice', invoiceData),
-  updateInvoice: (id, data) => api.put(`/client/invoice/${id}`, data),
-  deleteInvoice: (id) => api.delete(`/client/invoice/${id}`),
+  getInvoices: () => api.get('/invoices'),
+  uploadInvoice: (formData) => api.post('/invoice/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  }),
   
   // Company info
-  getCompanyInfo: () => api.get('/client/company'),
-  updateCompanyInfo: (data) => api.put('/client/company', data),
+  getCompanyInfo: () => api.get('/company'),
 };
 
 export default api;

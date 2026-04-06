@@ -1,141 +1,93 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
-import AppShell from './components/AppShell';
-import UploadInvoicePage from './pages/UploadInvoicePage';
-import InvoiceHistoryPage from './pages/InvoiceHistoryPage';
-import SettingsPage from './pages/SettingsPage';
-import LogoutPage from './pages/LogoutPage';
-import NotFoundPage from './pages/NotFoundPage';
-import LoginPage from './pages/LoginPage';
+
+// Components
 import AdminRoute from './components/AdminRoute';
 import UserRoute from './components/UserRoute';
-import AdminDashboardPage from './pages/AdminDashboardPage';
-import CreateCompanyPage from './pages/CreateCompanyPage';
-import CreateUserPage from './pages/CreateUserPage';
-import ClientDashboardPage from './pages/ClientDashboardPage';
-import { isAuthenticated } from './utils/auth';
 
-function AuthWrapper({ children }) {
-  const location = useLocation();
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return isAuthenticated();
-  });
+// Pages
+import Login from './pages/Login';
+import AdminDashboard from './pages/admin/Dashboard';
+import CreateCompany from './pages/admin/CreateCompany';
+import CreateUser from './pages/admin/CreateUser';
+import ClientDashboard from './pages/client/Dashboard';
+import UploadInvoice from './pages/client/UploadInvoice';
+import InvoiceHistory from './pages/client/InvoiceHistory';
 
-  useEffect(() => {
-    const handleStorageChange = () => {
-      setIsLoggedIn(isAuthenticated());
-    };
+// Check authentication
+const isAuthenticated = () => {
+  return !!localStorage.getItem('token');
+};
 
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('authChange', handleStorageChange);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('authChange', handleStorageChange);
-    };
-  }, []);
-
-  if (location.pathname === '/login' || location.pathname === '/logout') {
-    return children;
+// Auth wrapper component
+function ProtectedRoute({ children }) {
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" replace />;
   }
-
-  return isLoggedIn ? children : <Navigate to="/login" state={{ from: location }} replace />;
+  return children;
 }
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
+        {/* Public Routes */}
+        <Route path="/login" element={<Login />} />
         
         {/* ADMIN ROUTES */}
         <Route path="/admin/dashboard" element={
-          <AuthWrapper>
+          <ProtectedRoute>
             <AdminRoute>
-              <AppShell activePage="dashboard">
-                <AdminDashboardPage />
-              </AppShell>
+              <AdminDashboard />
             </AdminRoute>
-          </AuthWrapper>
+          </ProtectedRoute>
         } />
         
         <Route path="/admin/create-company" element={
-          <AuthWrapper>
+          <ProtectedRoute>
             <AdminRoute>
-              <AppShell activePage="create-company">
-                <CreateCompanyPage />
-              </AppShell>
+              <CreateCompany />
             </AdminRoute>
-          </AuthWrapper>
+          </ProtectedRoute>
         } />
-
+        
         <Route path="/admin/create-user" element={
-          <AuthWrapper>
+          <ProtectedRoute>
             <AdminRoute>
-              <AppShell activePage="create-user">
-                <CreateUserPage />
-              </AppShell>
+              <CreateUser />
             </AdminRoute>
-          </AuthWrapper>
+          </ProtectedRoute>
         } />
 
         {/* CLIENT ROUTES */}
         <Route path="/dashboard" element={
-          <AuthWrapper>
+          <ProtectedRoute>
             <UserRoute>
-              <AppShell activePage="dashboard">
-                <ClientDashboardPage />
-              </AppShell>
+              <ClientDashboard />
             </UserRoute>
-          </AuthWrapper>
+          </ProtectedRoute>
         } />
         
         <Route path="/upload" element={
-          <AuthWrapper>
+          <ProtectedRoute>
             <UserRoute>
-              <AppShell activePage="upload">
-                <UploadInvoicePage />
-              </AppShell>
+              <UploadInvoice />
             </UserRoute>
-          </AuthWrapper>
+          </ProtectedRoute>
         } />
         
         <Route path="/invoices" element={
-          <AuthWrapper>
+          <ProtectedRoute>
             <UserRoute>
-              <AppShell activePage="invoices">
-                <InvoiceHistoryPage />
-              </AppShell>
+              <InvoiceHistory />
             </UserRoute>
-          </AuthWrapper>
-        } />
-        
-        <Route path="/history" element={
-          <AuthWrapper>
-            <UserRoute>
-              <AppShell activePage="history">
-                <InvoiceHistoryPage />
-              </AppShell>
-            </UserRoute>
-          </AuthWrapper>
-        } />
-        
-        <Route path="/settings" element={
-          <AuthWrapper>
-            <UserRoute>
-              <AppShell activePage="settings">
-                <SettingsPage />
-              </AppShell>
-            </UserRoute>
-          </AuthWrapper>
+          </ProtectedRoute>
         } />
 
-        {/* LEGACY ROUTES - Redirect to role-specific routes */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        
-        <Route path="/logout" element={<LogoutPage />} />
-        <Route path="*" element={<NotFoundPage />} />
+        {/* Default Redirects */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );
