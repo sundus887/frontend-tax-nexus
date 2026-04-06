@@ -86,3 +86,16 @@ export function DownloadIcon(props) {
     </Icon>
   );
 }
+
+export function CompanyIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M3 21h18" />
+      <path d="M5 21V7l8-4v18" />
+      <path d="M19 21V11l-6-3" />
+      <path d="M9 9h1" />
+      <path d="M9 13h1" />
+      <path d="M9 17h1" />
+    </Icon>
+  );
+}

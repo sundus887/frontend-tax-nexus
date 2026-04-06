@@ -89,6 +89,8 @@ export const logout = () => {
   localStorage.removeItem("role");
   localStorage.removeItem("userName");
   localStorage.removeItem("userEmail");
+  
+  // Direct redirect without delay
   window.location.href = '/login';
 };
 

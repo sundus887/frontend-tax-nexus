@@ -3,14 +3,26 @@ import { useNavigate } from 'react-router-dom';
 import { adminAPI, clientAPI } from '../services/api';
 
 export default function LoginPage() {
+  const [loginType, setLoginType] = useState("company");
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  async function onSubmit(e) {
-    e.preventDefault();
+  // Auto-fill credentials when login type changes
+  React.useEffect(() => {
+    if (loginType === "admin") {
+      setEmail('admin@company.com');
+      setPassword('admin');
+    } else {
+      setEmail('client@company.com');
+      setPassword('client');
+    }
+    setError(''); // Clear error when switching types
+  }, [loginType]);
+
+  const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
       setError('Please fill in both fields.');
       return;
@@ -19,120 +31,292 @@ export default function LoginPage() {
     setError('');
 
     try {
-      // Try admin login first
+      // Try backend login first
+      let response;
+      let role;
+
       try {
-        const response = await adminAPI.login({ email, password });
+        if (loginType === "admin") {
+          response = await adminAPI.login({ email, password });
+          role = response.data.user.role;
+        } else {
+          response = await clientAPI.login({ email, password });
+          role = response.data.user.role;
+        }
+      } catch (backendError) {
+        // Fallback to mock login with STRICT role-specific validation
+        console.log('Backend login failed, using mock login for demo');
         
-        // Store token and role in frontend
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("role", response.data.user.role);
-        localStorage.setItem("userName", response.data.user.name || 'Admin User');
-        localStorage.setItem("userEmail", response.data.user.email || email);
-        
-        navigate('/dashboard');
-        return;
-      } catch (adminError) {
-        // If admin login fails, try client login
-        try {
-          const response = await clientAPI.login({ email, password });
-          
-          // Store token and role in frontend
-          localStorage.setItem("token", response.data.token);
-          localStorage.setItem("role", response.data.user.role);
-          localStorage.setItem("userName", response.data.user.name || 'Client User');
-          localStorage.setItem("userEmail", response.data.user.email || email);
-          
-          navigate('/dashboard');
-          return;
-        } catch (clientError) {
-          // If both fail, use mock login for demo
-          console.log('Backend login failed, using mock login for demo');
+        if (loginType === "admin") {
+          // STRICT: Only allow admin credentials when admin is selected
+          if (email === 'admin@company.com' && password === 'admin') {
+            role = 'admin';
+          } else {
+            setError('Admin login failed. Only admin credentials are allowed in admin mode.');
+            setLoading(false);
+            return;
+          }
+        } else {
+          // STRICT: Only allow client credentials when company is selected
+          if (email === 'client@company.com' && password === 'client') {
+            role = 'client';
+          } else {
+            setError('Company login failed. Only company credentials are allowed in company mode.');
+            setLoading(false);
+            return;
+          }
         }
       }
 
-      // Mock login with role (for demo purposes)
-      window.setTimeout(() => {
-        if (email === 'admin@company.com' && password === 'admin') {
-          localStorage.setItem("token", 'mock-token-123');
-          localStorage.setItem("role", 'admin');
-          localStorage.setItem("userName", 'Admin User');
-          localStorage.setItem("userEmail", 'admin@company.com');
-          navigate('/dashboard');
-        } else if (email === 'client@company.com' && password === 'client') {
-          localStorage.setItem("token", 'mock-token-456');
-          localStorage.setItem("role", 'client');
-          localStorage.setItem("userName", 'Client User');
-          localStorage.setItem("userEmail", 'client@company.com');
-          navigate('/dashboard');
-        } else {
-          setError('Invalid credentials. Use admin@company.com / admin or client@company.com / client');
-        }
+      // 🔐 STRICT VALIDATION - No cross-role login allowed
+      if (loginType === "admin" && role !== "admin") {
+        setError('Access denied. This is an admin-only login portal.');
         setLoading(false);
-      }, 800);
+        return;
+      }
 
-    } catch (error) {
-      console.error('Login error:', error);
+      if (loginType === "company" && role !== "client") {
+        setError('Access denied. This is a company-only login portal.');
+        setLoading(false);
+        return;
+      }
+
+      // STORE DATA
+      if (response) {
+        // Backend login data
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("role", role);
+        localStorage.setItem("userName", response.data.user.name || (role === 'admin' ? 'Admin User' : 'Client User'));
+        localStorage.setItem("userEmail", response.data.user.email || email);
+      } else {
+        // Mock login data
+        localStorage.setItem("token", role === 'admin' ? 'mock-token-123' : 'mock-token-456');
+        localStorage.setItem("role", role);
+        localStorage.setItem("userName", role === 'admin' ? 'Admin User' : 'Client User');
+        localStorage.setItem("userEmail", email);
+      }
+
+      // 🔁 REDIRECT TO CORRECT DASHBOARD
+      if (role === "admin") {
+        navigate("/admin/dashboard"); // Admin dashboard with admin features
+      } else {
+        navigate("/dashboard"); // Client dashboard with client features
+      }
+
+    } catch (err) {
+      console.error('Login error:', err);
       setError('Login failed. Please try again.');
       setLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="loginPage">
-      <div className="loginCard">
-        <div className="loginHeader">
-          <div className="loginLogo" aria-hidden="true">
-            <img src="/custom-logo.png" alt="TAX NEXUS Logo" className="loginLogoImg" onError={(e) => {e.target.src='/logo192.png'}} />
-          </div>
-          <div className="loginBrand">
-            <div className="loginTitle">TAX NEXUS</div>
-            <div className="loginSub">FBR Digital Invoicing Made Simple</div>
-          </div>
+    <div className="page" style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      minHeight: '100vh',
+      backgroundColor: '#f8fafc'
+    }}>
+      <div className="card" style={{ 
+        width: '100%', 
+        maxWidth: '400px',
+        padding: '32px',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+      }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <h1 style={{ 
+            fontSize: '24px', 
+            fontWeight: 'bold', 
+            color: '#1e293b',
+            marginBottom: '8px'
+          }}>
+            TAX NEXUS LOGIN
+          </h1>
+          <p style={{ color: '#64748b', fontSize: '14px' }}>
+            Sign in to your account
+          </p>
         </div>
 
-        <form className="loginForm" onSubmit={onSubmit}>
-          <div className="loginFormHeader">
-            <div className="loginFormTitle">Login</div>
-            <div className="loginFormSub">Enter your credentials to access your account</div>
+        {/* TOGGLE */}
+        <div style={{ 
+          display: 'flex', 
+          gap: '16px', 
+          marginBottom: '24px',
+          padding: '4px',
+          backgroundColor: '#f1f5f9',
+          borderRadius: '8px'
+        }}>
+          <label style={{ 
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '8px',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            backgroundColor: loginType === "admin" ? '#3b82f6' : 'transparent',
+            color: loginType === "admin" ? 'white' : '#64748b',
+            transition: 'all 0.2s'
+          }}>
+            <input
+              type="radio"
+              checked={loginType === "admin"}
+              onChange={() => setLoginType("admin")}
+              style={{ display: 'none' }}
+            />
+            Admin
+          </label>
+
+          <label style={{ 
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '8px',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            backgroundColor: loginType === "company" ? '#3b82f6' : 'transparent',
+            color: loginType === "company" ? 'white' : '#64748b',
+            transition: 'all 0.2s'
+          }}>
+            <input
+              type="radio"
+              checked={loginType === "company"}
+              onChange={() => setLoginType("company")}
+              style={{ display: 'none' }}
+            />
+            Company
+          </label>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500', color: '#374151' }}>
+              Email
+            </label>
+            <input
+              type="email"
+              placeholder={loginType === "admin" ? "admin@company.com" : "client@company.com"}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                fontSize: '14px',
+                outline: 'none',
+                transition: 'border-color 0.2s'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+              onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+            />
           </div>
 
-          <label className="loginField">
-            <div className="loginLabel">Email</div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500', color: '#374151' }}>
+              Password
+            </label>
             <input
-              className="loginInput"
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="company@example.com"
-              autoComplete="email"
-              required
-            />
-          </label>
-
-          <label className="loginField">
-            <div className="loginLabel">Password</div>
-            <input
-              className="loginInput"
               type="password"
+              placeholder={loginType === "admin" ? "admin" : "client"}
               value={password}
-              onChange={e => setPassword(e.target.value)}
-              placeholder="••••••••"
-              autoComplete="current-password"
-              required
+              onChange={(e) => setPassword(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                fontSize: '14px',
+                outline: 'none',
+                transition: 'border-color 0.2s'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+              onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
             />
-          </label>
+          </div>
 
-          {error ? <div className="loginError">{error}</div> : null}
+          {error && (
+            <div style={{
+              padding: '12px',
+              backgroundColor: '#fef2f2',
+              border: '1px solid #fecaca',
+              borderRadius: '6px',
+              color: '#dc2626',
+              fontSize: '14px'
+            }}>
+              {error}
+            </div>
+          )}
 
-          <button type="submit" className={loading ? 'loginBtn disabled' : 'loginBtn'} disabled={loading}>
-            {loading ? 'Logging in...' : 'Login to TAX NEXUS'}
+          <button
+            onClick={handleLogin}
+            disabled={loading}
+            style={{
+              width: '100%',
+              padding: '12px',
+              backgroundColor: loading ? '#9ca3af' : '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              transition: 'background-color 0.2s'
+            }}
+          >
+            {loading ? 'Signing in...' : 'Login'}
           </button>
+        </div>
 
-          <div className="loginSecurity">Secure FBR IRIS Portal Integration</div>
-        </form>
+        <div style={{ marginTop: '24px', padding: '16px', backgroundColor: '#f8fafc', borderRadius: '6px' }}>
+          <h3 style={{ fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+            Demo Credentials:
+          </h3>
+          <div style={{ fontSize: '12px', color: '#6b7280', lineHeight: '1.5' }}>
+            {loginType === "admin" ? (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ 
+                    backgroundColor: '#ef4444', 
+                    color: 'white', 
+                    padding: '2px 6px', 
+                    borderRadius: '4px', 
+                    fontSize: '10px',
+                    fontWeight: 'bold'
+                  }}>
+                    ADMIN ONLY
+                  </span>
+                  <div>
+                    <div><strong>admin@company.com</strong> / <strong>admin</strong></div>
+                    <div style={{ marginTop: '2px', color: '#ef4444' }}>Only works in Admin mode</div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ 
+                    backgroundColor: '#3b82f6', 
+                    color: 'white', 
+                    padding: '2px 6px', 
+                    borderRadius: '4px', 
+                    fontSize: '10px',
+                    fontWeight: 'bold'
+                  }}>
+                    CLIENT ONLY
+                  </span>
+                  <div>
+                    <div><strong>client@company.com</strong> / <strong>client</strong></div>
+                    <div style={{ marginTop: '2px', color: '#3b82f6' }}>Only works in Company mode</div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
-
-      <div className="loginFooter">© 2026 TAX NEXUS. All rights reserved.</div>
     </div>
   );
 }

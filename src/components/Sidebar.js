@@ -1,29 +1,53 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { isAdmin } from '../utils/auth';
 import {
   DashboardIcon,
   UploadIcon,
   HistoryIcon,
   SettingsIcon,
   LogoutIcon,
+  CompanyIcon,
 } from './icons';
-
-const NAV_ITEMS = [
-  { key: 'dashboard', label: 'Dashboard', icon: DashboardIcon, href: '/dashboard' },
-  { key: 'upload', label: 'Upload Invoice', icon: UploadIcon, href: '/upload' },
-  { key: 'history', label: 'Invoice History', icon: HistoryIcon, href: '/history' },
-  { key: 'settings', label: 'Settings', icon: SettingsIcon, href: '/settings' },
-];
 
 export default function Sidebar({ activePage }) {
   const [collapsed, setCollapsed] = useState(false);
+  const userIsAdmin = isAdmin();
+
+  // Role-based navigation items
+  const NAV_ITEMS = useMemo(() => {
+    const baseItems = [
+      { key: 'dashboard', label: 'Dashboard', icon: DashboardIcon, href: userIsAdmin ? '/admin/dashboard' : '/dashboard' },
+    ];
+
+    if (userIsAdmin) {
+      // Add admin-specific items
+      baseItems.push(
+        { key: 'create-company', label: 'Create Company', icon: CompanyIcon, href: '/admin/create-company' },
+        { key: 'create-user', label: 'Create User', icon: CompanyIcon, href: '/admin/create-user' }
+      );
+    } else {
+      // Add client-specific items
+      baseItems.push(
+        { key: 'upload', label: 'Upload Excel', icon: UploadIcon, href: '/upload' },
+        { key: 'invoices', label: 'Invoices', icon: HistoryIcon, href: '/invoices' }
+      );
+    }
+
+    // Add common items
+    baseItems.push(
+      { key: 'settings', label: 'Settings', icon: SettingsIcon, href: '/settings' }
+    );
+
+    return baseItems;
+  }, [userIsAdmin]);
 
   const brand = useMemo(
     () => ({
       name: 'TAX NEXUS',
-      subtitle: 'E-Invoicing',
+      subtitle: userIsAdmin ? 'Admin Panel' : 'E-Invoicing',
     }),
-    []
+    [userIsAdmin]
   );
 
   return (
@@ -66,12 +90,32 @@ export default function Sidebar({ activePage }) {
       </nav>
 
       <div className="sidebarFooter">
-        <Link to="/logout" className="navItem logout">
+        <button 
+          type="button"
+          className="navItem logout" 
+          onClick={() => {
+            localStorage.removeItem("token");
+            localStorage.removeItem("role");
+            localStorage.removeItem("userName");
+            localStorage.removeItem("userEmail");
+            window.location.href = '/login';
+          }}
+          style={{ 
+            background: 'none', 
+            border: 'none', 
+            color: 'inherit', 
+            width: '100%', 
+            display: 'flex', 
+            alignItems: 'center', 
+            padding: '12px 16px',
+            cursor: 'pointer'
+          }}
+        >
           <span className="navIcon" aria-hidden="true">
             <LogoutIcon size={18} />
           </span>
           {!collapsed && <span className="navLabel">Logout</span>}
-        </Link>
+        </button>
       </div>
     </aside>
   );

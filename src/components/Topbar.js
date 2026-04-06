@@ -1,9 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { getUserInfo } from '../utils/auth';
 
 export default function Topbar() {
-  const [environment, setEnvironment] = useState('Sandbox');
-
   const userInfo = useMemo(() => {
     const user = getUserInfo();
     if (user) {
@@ -34,6 +32,9 @@ export default function Topbar() {
     }
   }, []);
 
+  // Show environment switcher only for admin users
+  const showEnvironmentSwitcher = userInfo.role === 'admin';
+
   return (
     <div className="topbar">
       <div className="topbarLeft">
@@ -41,22 +42,22 @@ export default function Topbar() {
       </div>
 
       <div className="topbarRight">
-        <div className="envSwitch">
-          <button
-            type="button"
-            className={environment === 'Sandbox' ? 'envBtn envBtnActive' : 'envBtn'}
-            onClick={() => setEnvironment('Sandbox')}
-          >
-            Sandbox
-          </button>
-          <button
-            type="button"
-            className={environment === 'Production' ? 'envBtn envBtnActive' : 'envBtn'}
-            onClick={() => setEnvironment('Production')}
-          >
-            Production
-          </button>
-        </div>
+        {showEnvironmentSwitcher && (
+          <div className="envSwitch">
+            <button
+              type="button"
+              className="envBtn envBtnActive"
+            >
+              Sandbox
+            </button>
+            <button
+              type="button"
+              className="envBtn"
+            >
+              Production
+            </button>
+          </div>
+        )}
 
         <div className="topbarUser">
           <div className="topbarUserText">
