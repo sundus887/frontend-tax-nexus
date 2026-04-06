@@ -60,8 +60,11 @@ export default function Login() {
           <img
             src="/logo.jpg"
             alt="Tax Nexus Logo"
-            className="mx-auto h-16 w-auto mb-2"
+            className="mx-auto h-20 w-auto"
           />
+          <p className="mt-2 text-center text-gray-500">
+            E-Invoicing Portal
+          </p>
         </div>
 
         {/* Login Type Toggle */}
