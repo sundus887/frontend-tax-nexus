@@ -1,8 +1,33 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { isClient } from '../utils/auth';
+import api from '../services/api';
 
 export default function ClientDashboardPage() {
   const [userIsClient] = React.useState(() => isClient());
+
+  // Test backend connection
+  useEffect(() => {
+    console.log('Testing backend connection...');
+    
+    // Test invoice endpoint
+    api.get("/invoice")
+      .then((res) => {
+        console.log("✅ INVOICE DATA:", res.data);
+      })
+      .catch((err) => {
+        console.log("❌ INVOICE ERROR:", err);
+        console.log("Error details:", err.response?.data || err.message);
+      });
+
+    // Test health endpoint
+    api.get("/health")
+      .then((res) => {
+        console.log("✅ HEALTH CHECK:", res.data);
+      })
+      .catch((err) => {
+        console.log("❌ HEALTH ERROR:", err);
+      });
+  }, []);
 
   if (!userIsClient) {
     return <div>Access Denied</div>;

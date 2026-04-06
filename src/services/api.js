@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://taxnexus-backend.onrender.com';
+const API_BASE_URL = 'https://taxnexus-backend.onrender.com/api';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -43,42 +43,42 @@ api.interceptors.response.use(
 // Admin API endpoints
 export const adminAPI = {
   // Authentication
-  login: (credentials) => api.post('/api/admin/login', credentials),
+  login: (credentials) => api.post('/admin/login', credentials),
   
   // Companies
-  createCompany: (companyData) => api.post('/api/admin/company', companyData),
-  getCompanies: () => api.get('/api/admin/companies'),
-  updateCompany: (id, data) => api.put(`/api/admin/company/${id}`, data),
-  deleteCompany: (id) => api.delete(`/api/admin/company/${id}`),
+  createCompany: (companyData) => api.post('/admin/company', companyData),
+  getCompanies: () => api.get('/admin/companies'),
+  updateCompany: (id, data) => api.put(`/admin/company/${id}`, data),
+  deleteCompany: (id) => api.delete(`/admin/company/${id}`),
   
   // Users
-  createUser: (userData) => api.post('/api/admin/create-user', userData),
-  getUsers: () => api.get('/api/admin/users'),
-  updateUser: (id, data) => api.put(`/api/admin/user/${id}`, data),
-  deleteUser: (id) => api.delete(`/api/admin/user/${id}`),
+  createUser: (userData) => api.post('/admin/create-user', userData),
+  getUsers: () => api.get('/admin/users'),
+  updateUser: (id, data) => api.put(`/admin/user/${id}`, data),
+  deleteUser: (id) => api.delete(`/admin/user/${id}`),
   
   // Dashboard stats
-  getStats: () => api.get('/api/admin/stats'),
-  getRecentActivity: () => api.get('/api/admin/activity'),
+  getStats: () => api.get('/admin/stats'),
+  getRecentActivity: () => api.get('/admin/activity'),
   
   // Connection test
-  testConnection: () => api.get('/api/health'),
+  testConnection: () => api.get('/health'),
 };
 
 // Client API endpoints (for regular users)
 export const clientAPI = {
   // Authentication
-  login: (credentials) => api.post('/api/client/login', credentials),
+  login: (credentials) => api.post('/client/login', credentials),
   
   // Invoices
-  getInvoices: () => api.get('/api/client/invoices'),
-  createInvoice: (invoiceData) => api.post('/api/client/invoice', invoiceData),
-  updateInvoice: (id, data) => api.put(`/api/client/invoice/${id}`, data),
-  deleteInvoice: (id) => api.delete(`/api/client/invoice/${id}`),
+  getInvoices: () => api.get('/client/invoices'),
+  createInvoice: (invoiceData) => api.post('/client/invoice', invoiceData),
+  updateInvoice: (id, data) => api.put(`/client/invoice/${id}`, data),
+  deleteInvoice: (id) => api.delete(`/client/invoice/${id}`),
   
   // Company info
-  getCompanyInfo: () => api.get('/api/client/company'),
-  updateCompanyInfo: (data) => api.put('/api/client/company', data),
+  getCompanyInfo: () => api.get('/client/company'),
+  updateCompanyInfo: (data) => api.put('/client/company', data),
 };
 
 export default api;
