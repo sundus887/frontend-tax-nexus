@@ -76,7 +76,7 @@ export default function Login() {
             src="/logo.jpg"
             alt="Tax Nexus Logo"
             style={{
-              height: '120px',
+              height: '150px',
               width: 'auto',
               margin: '0 auto'
             }}
