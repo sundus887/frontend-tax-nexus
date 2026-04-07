@@ -40,44 +40,67 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div style={{ minHeight: '100vh', backgroundColor: '#f3f4f6' }}>
       {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-4">
+      <header style={{ backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <img
               src="/logo.jpg"
               alt="Tax Nexus Logo"
-              className="h-12 w-auto"
+              style={{ height: '48px', width: 'auto' }}
             />
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">TAX NEXUS</h1>
-              <p className="text-sm text-gray-500">Admin Panel</p>
+              <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>TAX NEXUS</h1>
+              <p style={{ fontSize: '14px', color: '#6b7280' }}>Admin Panel</p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#dc2626',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer'
+            }}
           >
             Logout
           </button>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '32px 24px' }}>
         {/* Quick Actions */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-          <div className="flex space-x-4">
+        <div style={{ marginBottom: '32px' }}>
+          <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', marginBottom: '16px' }}>Quick Actions</h2>
+          <div style={{ display: 'flex', gap: '16px' }}>
             <button
               onClick={() => navigate('/admin/create-company')}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+              style={{
+                padding: '12px 24px',
+                backgroundColor: '#2563eb',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontWeight: '500',
+                cursor: 'pointer'
+              }}
             >
               + Create Company
             </button>
             <button
               onClick={() => navigate('/admin/create-user')}
-              className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
+              style={{
+                padding: '12px 24px',
+                backgroundColor: '#16a34a',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontWeight: '500',
+                cursor: 'pointer'
+              }}
             >
               + Create User
             </button>
@@ -85,65 +108,67 @@ export default function AdminDashboard() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-sm font-medium text-gray-500">Total Companies</h3>
-            <p className="text-3xl font-bold text-gray-900">{stats.totalCompanies}</p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
+          <div style={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '24px' }}>
+            <h3 style={{ fontSize: '14px', fontWeight: '500', color: '#6b7280' }}>Total Companies</h3>
+            <p style={{ fontSize: '30px', fontWeight: 'bold', color: '#111827' }}>{stats.totalCompanies}</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-sm font-medium text-gray-500">Total Users</h3>
-            <p className="text-3xl font-bold text-gray-900">{stats.totalUsers}</p>
+          <div style={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '24px' }}>
+            <h3 style={{ fontSize: '14px', fontWeight: '500', color: '#6b7280' }}>Total Users</h3>
+            <p style={{ fontSize: '30px', fontWeight: 'bold', color: '#111827' }}>{stats.totalUsers}</p>
           </div>
         </div>
 
         {/* Company List */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-            <h2 className="text-lg font-semibold text-gray-900">Company List</h2>
+        <div style={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+          <div style={{ padding: '16px 24px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#111827' }}>Company List</h2>
             <button
               onClick={fetchData}
-              className="text-blue-600 hover:text-blue-800 text-sm"
+              style={{ color: '#2563eb', fontSize: '14px', background: 'none', border: 'none', cursor: 'pointer' }}
             >
               Refresh
             </button>
           </div>
           
           {loading ? (
-            <div className="p-6 text-center text-gray-500">Loading...</div>
+            <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>Loading...</div>
           ) : error ? (
-            <div className="p-6 text-center text-red-500">{error}</div>
+            <div style={{ padding: '24px', textAlign: 'center', color: '#dc2626' }}>{error}</div>
           ) : companies.length === 0 ? (
-            <div className="p-6 text-center text-gray-500">
+            <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>
               No companies found. Create your first company!
             </div>
           ) : (
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead style={{ backgroundColor: '#f9fafb' }}>
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">NTN</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Province</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Environment</th>
+                  <th style={{ padding: '12px 24px', textAlign: 'left', fontSize: '12px', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase' }}>Name</th>
+                  <th style={{ padding: '12px 24px', textAlign: 'left', fontSize: '12px', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase' }}>NTN</th>
+                  <th style={{ padding: '12px 24px', textAlign: 'left', fontSize: '12px', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase' }}>Province</th>
+                  <th style={{ padding: '12px 24px', textAlign: 'left', fontSize: '12px', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase' }}>Environment</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody>
                 {companies.map((company) => (
-                  <tr key={company.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <tr key={company.id} style={{ borderTop: '1px solid #e5e7eb' }}>
+                    <td style={{ padding: '16px 24px', fontSize: '14px', fontWeight: '500', color: '#111827' }}>
                       {company.name}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td style={{ padding: '16px 24px', fontSize: '14px', color: '#6b7280' }}>
                       {company.ntn}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td style={{ padding: '16px 24px', fontSize: '14px', color: '#6b7280' }}>
                       {company.province}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <span className={`px-2 py-1 rounded text-xs ${
-                        company.environment === 'production' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}>
+                    <td style={{ padding: '16px 24px', fontSize: '14px', color: '#6b7280' }}>
+                      <span style={{
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        backgroundColor: company.environment === 'production' ? '#d1fae5' : '#fef3c7',
+                        color: company.environment === 'production' ? '#065f46' : '#92400e'
+                      }}>
                         {company.environment}
                       </span>
                     </td>
