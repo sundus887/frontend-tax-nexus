@@ -54,54 +54,99 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
-        <div className="text-center">
+    <div style={{
+      minHeight: '100vh',
+      backgroundColor: '#f3f4f6',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '48px 16px'
+    }}>
+      <div style={{
+        maxWidth: '400px',
+        width: '100%',
+        backgroundColor: 'white',
+        padding: '32px',
+        borderRadius: '8px',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+      }}>
+        {/* Logo */}
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <img
             src="/logo.jpg"
             alt="Tax Nexus Logo"
-            className="mx-auto h-20 w-auto"
+            style={{
+              height: '80px',
+              width: 'auto',
+              margin: '0 auto'
+            }}
           />
-          <p className="mt-2 text-center text-gray-500">
-            E-Invoicing Portal
-          </p>
         </div>
 
         {/* Login Type Toggle */}
-        <div className="flex justify-center space-x-4 mt-6">
-          <label className="inline-flex items-center cursor-pointer">
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '24px',
+          marginBottom: '24px'
+        }}>
+          <label style={{
+            display: 'flex',
+            alignItems: 'center',
+            cursor: 'pointer',
+            fontSize: '14px'
+          }}>
             <input
               type="radio"
               name="loginType"
               value="admin"
               checked={loginType === 'admin'}
               onChange={(e) => setLoginType(e.target.value)}
-              className="form-radio h-4 w-4 text-blue-600"
+              style={{ marginRight: '8px' }}
             />
-            <span className="ml-2 text-gray-700">Admin Login</span>
+            <span>Admin Login</span>
           </label>
-          <label className="inline-flex items-center cursor-pointer">
+          <label style={{
+            display: 'flex',
+            alignItems: 'center',
+            cursor: 'pointer',
+            fontSize: '14px'
+          }}>
             <input
               type="radio"
               name="loginType"
               value="company"
               checked={loginType === 'company'}
               onChange={(e) => setLoginType(e.target.value)}
-              className="form-radio h-4 w-4 text-blue-600"
+              style={{ marginRight: '8px' }}
             />
-            <span className="ml-2 text-gray-700">Company Login</span>
+            <span>Company Login</span>
           </label>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            <div style={{
+              backgroundColor: '#fef2f2',
+              border: '1px solid #fecaca',
+              color: '#dc2626',
+              padding: '12px 16px',
+              borderRadius: '6px',
+              marginBottom: '16px',
+              fontSize: '14px'
+            }}>
               {error}
             </div>
           )}
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          <div style={{ marginBottom: '16px' }}>
+            <label htmlFor="email" style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#374151',
+              marginBottom: '4px'
+            }}>
               Email
             </label>
             <input
@@ -111,13 +156,26 @@ export default function Login() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                fontSize: '14px',
+                boxSizing: 'border-box'
+              }}
               placeholder="Enter your email"
             />
           </div>
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+          <div style={{ marginBottom: '24px' }}>
+            <label htmlFor="password" style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#374151',
+              marginBottom: '4px'
+            }}>
               Password
             </label>
             <input
@@ -127,20 +185,36 @@ export default function Login() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                fontSize: '14px',
+                boxSizing: 'border-box'
+              }}
               placeholder="Enter your password"
             />
           </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-            >
-              {loading ? 'Logging in...' : 'Login'}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: '100%',
+              padding: '12px',
+              backgroundColor: '#2563eb',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.5 : 1
+            }}
+          >
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
         </form>
       </div>
     </div>
