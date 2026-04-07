@@ -75,13 +75,9 @@ const authFetch = async (url, options = {}) => {
   });
   
   if (!response.ok) {
-    if (response.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('role');
-      window.location.href = '/login';
-      throw new Error('Unauthorized');
-    }
-    throw new Error(`API error: ${response.status}`);
+    const error = new Error(`API error: ${response.status}`);
+    error.status = response.status;
+    throw error;
   }
   
   const data = await response.json();

@@ -11,21 +11,48 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchData();
+    // Check if user is logged in
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+    if (!token || role !== 'admin') {
+      navigate('/login');
+      return;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigate]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+    if (token && role === 'admin') {
+      fetchData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchData = async () => {
     try {
       setLoading(true);
+      setError('');
       const companiesRes = await adminAPI.getCompanies();
-      setCompanies(companiesRes.data || []);
+      // Handle different response formats
+      const companiesData = companiesRes.data?.companies || companiesRes.data || [];
+      setCompanies(companiesData);
       setStats({
-        totalCompanies: companiesRes.data?.length || 0,
+        totalCompanies: companiesData.length || 0,
         totalUsers: 0
       });
     } catch (err) {
       console.error('Failed to fetch data:', err);
-      setError('Failed to load data');
+      if (err.status === 401) {
+        // Unauthorized - redirect to login
+        localStorage.removeItem('token');
+        localStorage.removeItem('role');
+        navigate('/login');
+        return;
+      }
+      setError('Failed to load data. Please try again.');
+      setCompanies([]);
     } finally {
       setLoading(false);
     }
