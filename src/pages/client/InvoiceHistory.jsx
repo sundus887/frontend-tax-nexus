@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { clientAPI } from '../../services/api';
+import Sidebar from '../../components/Sidebar';
 
 export default function InvoiceHistory() {
   const [invoices, setInvoices] = useState([]);
@@ -16,7 +17,7 @@ export default function InvoiceHistory() {
     try {
       setLoading(true);
       const response = await clientAPI.getInvoices();
-      setInvoices(response.data.invoices || response.data || []);
+      setInvoices(response.data?.invoices || response.data || []);
     } catch (err) {
       console.error('Failed to fetch invoices:', err);
       setError('Failed to load invoices');
@@ -29,145 +30,126 @@ export default function InvoiceHistory() {
     try {
       await clientAPI.sendToFBR(invoiceId);
       alert('Invoice sent to FBR successfully!');
-      fetchInvoices(); // Refresh the list
+      fetchInvoices();
     } catch (err) {
       console.error('Failed to send to FBR:', err);
       alert('Failed to send invoice to FBR');
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
-    localStorage.removeItem('userName');
-    localStorage.removeItem('userEmail');
-    navigate('/login');
-  };
-
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-4">
-            <img
-              src="/logo.jpg"
-              alt="Tax Nexus Logo"
-              className="h-10 w-auto"
-            />
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Invoice History</h1>
-              <p className="text-sm text-gray-500">View and manage all invoices</p>
-            </div>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-          >
-            Logout
-          </button>
-        </div>
-      </header>
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
+      {/* Sidebar */}
+      <Sidebar userType="client" />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Navigation */}
-        <div className="mb-6 flex space-x-4">
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="text-blue-600 hover:text-blue-800"
-          >
-            ← Back to Dashboard
-          </button>
-          <button
-            onClick={() => navigate('/upload')}
-            className="text-blue-600 hover:text-blue-800"
-          >
-            + Upload New
-          </button>
-        </div>
+      {/* Main Content */}
+      <div style={{ flex: 1, backgroundColor: '#f3f4f6' }}>
+        {/* Header */}
+        <header style={{ backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '16px 24px' }}>
+          <h1 style={{ fontSize: '20px', fontWeight: '600', color: '#111827' }}>Invoice History</h1>
+        </header>
 
-        {/* Invoices Table */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-            <h2 className="text-lg font-semibold text-gray-900">All Invoices</h2>
+        <main style={{ padding: '24px' }}>
+          {/* Navigation */}
+          <div style={{ marginBottom: '24px', display: 'flex', gap: '16px' }}>
             <button
-              onClick={fetchInvoices}
-              className="text-blue-600 hover:text-blue-800 text-sm"
+              onClick={() => navigate('/dashboard')}
+              style={{ color: '#2563eb', fontSize: '14px', background: 'none', border: 'none', cursor: 'pointer' }}
             >
-              Refresh
+              ← Back to Dashboard
+            </button>
+            <button
+              onClick={() => navigate('/upload')}
+              style={{ color: '#2563eb', fontSize: '14px', background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              + Upload New
             </button>
           </div>
-          
-          {loading ? (
-            <div className="p-6 text-center text-gray-500">Loading...</div>
-          ) : error ? (
-            <div className="p-6 text-center text-red-500">{error}</div>
-          ) : invoices.length === 0 ? (
-            <div className="p-6 text-center text-gray-500">
-              No invoices found. <button onClick={() => navigate('/upload')} className="text-blue-600 underline">Upload your first invoice</button>
+
+          {/* Invoices Table */}
+          <div style={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#111827' }}>All Invoices</h2>
+              <button
+                onClick={fetchInvoices}
+                style={{ color: '#2563eb', fontSize: '14px', background: 'none', border: 'none', cursor: 'pointer' }}
+              >
+                Refresh
+              </button>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Invoice #</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {invoices.map((invoice) => (
-                    <tr key={invoice.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {invoice.invoice_number}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(invoice.created_at).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {invoice.customer_name}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        PKR {invoice.amount?.toLocaleString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 rounded text-xs ${
-                          invoice.status === 'sent' 
-                            ? 'bg-green-100 text-green-800' 
-                            : invoice.status === 'invalid'
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {invoice.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {invoice.status === 'pending' && (
-                          <button
-                            onClick={() => handleSendToFBR(invoice.id)}
-                            className="text-blue-600 hover:text-blue-800 font-medium"
-                          >
-                            Send to FBR
-                          </button>
-                        )}
-                        {invoice.status === 'sent' && (
-                          <span className="text-green-600 text-xs">
-                            FBR Ref: {invoice.fbr_reference}
-                          </span>
-                        )}
-                      </td>
+            
+            {loading ? (
+              <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>Loading...</div>
+            ) : error ? (
+              <div style={{ padding: '40px', textAlign: 'center', color: '#dc2626' }}>{error}</div>
+            ) : invoices.length === 0 ? (
+              <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>
+                No invoices found. <button onClick={() => navigate('/upload')} style={{ color: '#2563eb', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer' }}>Upload your first invoice</button>
+              </div>
+            ) : (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead style={{ backgroundColor: '#f9fafb' }}>
+                    <tr>
+                      <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Invoice #</th>
+                      <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Date</th>
+                      <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Customer</th>
+                      <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Amount</th>
+                      <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Status</th>
+                      <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </main>
+                  </thead>
+                  <tbody>
+                    {invoices.map((invoice) => (
+                      <tr key={invoice.id} style={{ borderTop: '1px solid #e5e7eb' }}>
+                        <td style={{ padding: '16px 20px', fontSize: '14px', fontWeight: '500', color: '#111827' }}>
+                          {invoice.invoice_number}
+                        </td>
+                        <td style={{ padding: '16px 20px', fontSize: '14px', color: '#6b7280' }}>
+                          {new Date(invoice.created_at).toLocaleDateString()}
+                        </td>
+                        <td style={{ padding: '16px 20px', fontSize: '14px', color: '#6b7280' }}>
+                          {invoice.customer_name}
+                        </td>
+                        <td style={{ padding: '16px 20px', fontSize: '14px', color: '#6b7280' }}>
+                          PKR {invoice.amount?.toLocaleString()}
+                        </td>
+                        <td style={{ padding: '16px 20px' }}>
+                          <span style={{
+                            padding: '4px 10px',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: '500',
+                            backgroundColor: invoice.status === 'sent' ? '#d1fae5' : invoice.status === 'invalid' ? '#fee2e2' : '#fef3c7',
+                            color: invoice.status === 'sent' ? '#065f46' : invoice.status === 'invalid' ? '#991b1b' : '#92400e'
+                          }}>
+                            {invoice.status}
+                          </span>
+                        </td>
+                        <td style={{ padding: '16px 20px', fontSize: '14px' }}>
+                          {invoice.status === 'pending' && (
+                            <button
+                              onClick={() => handleSendToFBR(invoice.id)}
+                              style={{ color: '#2563eb', fontWeight: '500', background: 'none', border: 'none', cursor: 'pointer' }}
+                            >
+                              Send to FBR
+                            </button>
+                          )}
+                          {invoice.status === 'sent' && (
+                            <span style={{ color: '#16a34a', fontSize: '12px' }}>
+                              FBR Ref: {invoice.fbr_reference}
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

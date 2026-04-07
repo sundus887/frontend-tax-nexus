@@ -62,14 +62,46 @@ export const authAPI = {
   },
 };
 
+// Helper function for authenticated fetch
+const authFetch = async (url, options = {}) => {
+  const token = localStorage.getItem('token');
+  const response = await fetch(`${API_BASE_URL}${url}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` }),
+      ...options.headers,
+    },
+  });
+  
+  if (!response.ok) {
+    if (response.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+      window.location.href = '/login';
+      throw new Error('Unauthorized');
+    }
+    throw new Error(`API error: ${response.status}`);
+  }
+  
+  const data = await response.json();
+  return { data };
+};
+
 // Admin API endpoints
 export const adminAPI = {
   // Companies
-  createCompany: (companyData) => api.post('/admin/company', companyData),
-  getCompanies: () => api.get('/admin/companies'),
+  createCompany: (companyData) => authFetch('/admin/company', {
+    method: 'POST',
+    body: JSON.stringify(companyData),
+  }),
+  getCompanies: () => authFetch('/admin/companies'),
   
   // Users
-  createUser: (userData) => api.post('/admin/create-user', userData),
+  createUser: (userData) => authFetch('/admin/create-user', {
+    method: 'POST',
+    body: JSON.stringify(userData),
+  }),
 };
 
 // Client API endpoints

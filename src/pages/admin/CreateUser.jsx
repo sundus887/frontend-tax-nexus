@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminAPI } from '../../services/api';
+import Sidebar from '../../components/Sidebar';
 
 export default function CreateUser() {
   const [formData, setFormData] = useState({
@@ -16,16 +17,27 @@ export default function CreateUser() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Check if user is logged in
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
     fetchCompanies();
-  }, []);
+  }, [navigate]);
 
   const fetchCompanies = async () => {
     try {
+      setFetchingCompanies(true);
+      setError('');
       const response = await adminAPI.getCompanies();
-      setCompanies(response.data || []);
+      // Handle different response formats
+      const companiesData = response.data?.companies || response.data || [];
+      setCompanies(companiesData);
     } catch (err) {
       console.error('Failed to fetch companies:', err);
-      setError('Failed to load companies');
+      setError('Failed to load companies. Please try again.');
+      setCompanies([]);
     } finally {
       setFetchingCompanies(false);
     }
@@ -63,20 +75,18 @@ export default function CreateUser() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f3f4f6' }}>
-      {/* Header */}
-      <header style={{ backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <img
-            src="/logo.jpg"
-            alt="Tax Nexus Logo"
-            style={{ height: '40px', width: 'auto' }}
-          />
-          <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>Create User</h1>
-        </div>
-      </header>
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
+      {/* Sidebar */}
+      <Sidebar userType="admin" />
 
-      <main style={{ maxWidth: '768px', margin: '0 auto', padding: '32px 24px' }}>
+      {/* Main Content */}
+      <div style={{ flex: 1, backgroundColor: '#f3f4f6' }}>
+        {/* Header */}
+        <header style={{ backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '16px 24px' }}>
+          <h1 style={{ fontSize: '20px', fontWeight: '600', color: '#111827' }}>Create User</h1>
+        </header>
+
+        <main style={{ maxWidth: '600px', padding: '24px' }}>
         <div style={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '24px' }}>
           {error && (
             <div style={{ marginBottom: '16px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', padding: '12px 16px', borderRadius: '6px' }}>
@@ -223,6 +233,7 @@ export default function CreateUser() {
           </form>
         </div>
       </main>
+    </div>
     </div>
   );
 }
