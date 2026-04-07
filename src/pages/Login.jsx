@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import { authAPI } from '../services/api';
 
 export default function Login() {
   const [loginType, setLoginType] = useState('admin'); // "admin" | "company"
@@ -16,7 +16,7 @@ export default function Login() {
     setError('');
 
     try {
-      const response = await api.post('/auth/login', { email, password });
+      const response = await authAPI.login({ email, password });
       const { token, user } = response.data;
       const role = user.role;
 

@@ -16,7 +16,7 @@ export default function InvoiceHistory() {
     try {
       setLoading(true);
       const response = await clientAPI.getInvoices();
-      setInvoices(response.data || []);
+      setInvoices(response.data.invoices || response.data || []);
     } catch (err) {
       console.error('Failed to fetch invoices:', err);
       setError('Failed to load invoices');
@@ -26,8 +26,14 @@ export default function InvoiceHistory() {
   };
 
   const handleSendToFBR = async (invoiceId) => {
-    // This would call the API to send invoice to FBR
-    alert(`Sending invoice ${invoiceId} to FBR...`);
+    try {
+      await clientAPI.sendToFBR(invoiceId);
+      alert('Invoice sent to FBR successfully!');
+      fetchInvoices(); // Refresh the list
+    } catch (err) {
+      console.error('Failed to send to FBR:', err);
+      alert('Failed to send invoice to FBR');
+    }
   };
 
   const handleLogout = () => {

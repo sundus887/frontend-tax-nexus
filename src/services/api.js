@@ -40,36 +40,33 @@ api.interceptors.response.use(
   }
 );
 
+// Auth API endpoints
+export const authAPI = {
+  login: (credentials) => api.post('/auth/login', credentials),
+  register: (userData) => api.post('/auth/register', userData),
+};
+
 // Admin API endpoints
 export const adminAPI = {
   // Companies
   createCompany: (companyData) => api.post('/admin/company', companyData),
   getCompanies: () => api.get('/admin/companies'),
-  updateCompany: (id, data) => api.put(`/admin/company/${id}`, data),
-  deleteCompany: (id) => api.delete(`/admin/company/${id}`),
   
   // Users
   createUser: (userData) => api.post('/admin/create-user', userData),
-  getUsers: () => api.get('/admin/users'),
-  updateUser: (id, data) => api.put(`/admin/user/${id}`, data),
-  deleteUser: (id) => api.delete(`/admin/user/${id}`),
-  
-  // Dashboard stats
-  getStats: () => api.get('/admin/stats'),
 };
 
 // Client API endpoints
 export const clientAPI = {
   // Invoices
-  getInvoices: () => api.get('/invoices'),
+  getInvoices: () => api.get('/invoice/history'),
+  getInvoice: (id) => api.get(`/invoice/${id}`),
   uploadInvoice: (formData) => api.post('/invoice/upload', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   }),
-  
-  // Company info
-  getCompanyInfo: () => api.get('/company'),
+  sendToFBR: (id) => api.post(`/invoice/send/${id}`),
 };
 
 export default api;

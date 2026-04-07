@@ -15,14 +15,14 @@ export default function ClientDashboard() {
   const fetchData = async () => {
     try {
       const response = await clientAPI.getInvoices();
-      const invoicesData = response.data || [];
+      const invoicesData = response.data.invoices || response.data || [];
       setInvoices(invoicesData.slice(0, 5)); // Show last 5
       
       // Calculate stats
       setStats({
         total: invoicesData.length,
-        sent: invoicesData.filter(inv => inv.status === 'sent').length,
-        pending: invoicesData.filter(inv => inv.status === 'pending').length
+        sent: invoicesData.filter(inv => inv.status === 'sent' || inv.fbr_status === 'sent').length,
+        pending: invoicesData.filter(inv => inv.status === 'pending' || inv.fbr_status === 'pending').length
       });
     } catch (err) {
       console.error('Failed to fetch invoices:', err);
