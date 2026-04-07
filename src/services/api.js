@@ -40,10 +40,26 @@ api.interceptors.response.use(
   }
 );
 
-// Auth API endpoints
+// Auth API endpoints using fetch (no CORS issues)
 export const authAPI = {
-  login: (credentials) => api.post('/auth/login', credentials),
-  register: (userData) => api.post('/auth/register', userData),
+  login: async (credentials) => {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials),
+    });
+    if (!response.ok) throw new Error('Login failed');
+    return { data: await response.json() };
+  },
+  register: async (userData) => {
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData),
+    });
+    if (!response.ok) throw new Error('Registration failed');
+    return { data: await response.json() };
+  },
 };
 
 // Admin API endpoints
