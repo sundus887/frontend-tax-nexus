@@ -63,74 +63,103 @@ export default function CreateUser() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center space-x-4">
+    <div style={{ minHeight: '100vh', backgroundColor: '#f3f4f6' }}>
+      {/* Header */}
+      <header style={{ backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
           <img
             src="/logo.jpg"
             alt="Tax Nexus Logo"
-            className="h-10 w-auto"
+            style={{ height: '40px', width: 'auto' }}
           />
-          <h1 className="text-2xl font-bold text-gray-900">Create User</h1>
+          <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>Create User</h1>
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow p-6">
+      <main style={{ maxWidth: '768px', margin: '0 auto', padding: '32px 24px' }}>
+        <div style={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '24px' }}>
           {error && (
-            <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            <div style={{ marginBottom: '16px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', padding: '12px 16px', borderRadius: '6px' }}>
               {error}
             </div>
           )}
           {success && (
-            <div className="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
+            <div style={{ marginBottom: '16px', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', color: '#16a34a', padding: '12px 16px', borderRadius: '6px' }}>
               {success}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Email *</label>
+          <form onSubmit={handleSubmit}>
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '4px' }}>
+                Email *
+              </label>
               <input
                 type="email"
                 name="email"
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  boxSizing: 'border-box'
+                }}
                 placeholder="user@company.com"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Password *</label>
-              <div className="flex space-x-2">
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '4px' }}>
+                Password *
+              </label>
+              <div style={{ display: 'flex', gap: '8px' }}>
                 <input
                   type="text"
                   name="password"
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  style={{
+                    flex: 1,
+                    padding: '10px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
                   placeholder="Enter password"
                 />
                 <button
                   type="button"
                   onClick={generatePassword}
-                  className="mt-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                  style={{
+                    padding: '10px 16px',
+                    backgroundColor: '#e5e7eb',
+                    color: '#374151',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    cursor: 'pointer'
+                  }}
                 >
                   Generate
                 </button>
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Company *</label>
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '4px' }}>
+                Company *
+              </label>
               {fetchingCompanies ? (
-                <div className="mt-1 text-gray-500">Loading companies...</div>
+                <div style={{ color: '#6b7280' }}>Loading companies...</div>
               ) : companies.length === 0 ? (
-                <div className="mt-1 text-red-500">
-                  No companies found. <button onClick={() => navigate('/admin/create-company')} className="underline">Create one first</button>
+                <div style={{ color: '#dc2626' }}>
+                  No companies found. <button onClick={() => navigate('/admin/create-company')} style={{ textDecoration: 'underline', background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer' }}>Create one first</button>
                 </div>
               ) : (
                 <select
@@ -138,7 +167,15 @@ export default function CreateUser() {
                   required
                   value={formData.companyId}
                   onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box',
+                    backgroundColor: 'white'
+                  }}
                 >
                   <option value="">Select a company</option>
                   {companies.map((company) => (
@@ -150,18 +187,35 @@ export default function CreateUser() {
               )}
             </div>
 
-            <div className="flex space-x-4">
+            <div style={{ display: 'flex', gap: '16px' }}>
               <button
                 type="button"
                 onClick={() => navigate('/admin/dashboard')}
-                className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                style={{
+                  padding: '10px 24px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  backgroundColor: 'white',
+                  color: '#374151',
+                  fontSize: '14px',
+                  cursor: 'pointer'
+                }}
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading || companies.length === 0}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                style={{
+                  padding: '10px 24px',
+                  backgroundColor: '#2563eb',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  cursor: loading || companies.length === 0 ? 'not-allowed' : 'pointer',
+                  opacity: loading || companies.length === 0 ? 0.5 : 1
+                }}
               >
                 {loading ? 'Creating...' : 'Create User'}
               </button>
