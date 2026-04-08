@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { isAdmin } from '../utils/auth';
+import Sidebar from '../components/Sidebar';
 
 export default function SettingsPage() {
   const [company, setCompany] = useState('Tax Nexus Pvt Ltd');
@@ -201,16 +202,21 @@ export default function SettingsPage() {
   const canSave = company && ntn && email && phone && address && endpoint && apiKey;
 
   return (
-    <div className="page">
-      <div className="pageHeader">
-        <div>
-          <div className="pageTitle">Settings</div>
-          <div className="pageSubtitle">Configure your organization and application preferences</div>
-        </div>
-      </div>
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
+      {/* Sidebar */}
+      <Sidebar userType="admin" />
 
-      <div className="settingsContainer">
-        <div className="card">
+      {/* Main Content */}
+      <div style={{ flex: 1, backgroundColor: '#f3f4f6' }}>
+        {/* Header */}
+        <header style={{ backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '16px 24px' }}>
+          <h1 style={{ fontSize: '20px', fontWeight: '600', color: '#111827' }}>Settings</h1>
+          <p style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>Configure your organization and application preferences</p>
+        </header>
+
+        <main style={{ padding: '24px' }}>
+          <div style={{ maxWidth: '800px' }}>
+            <div className="card">
           <div className="cardHeader">
             <div className="cardTitle">API Configuration</div>
           </div>
@@ -453,6 +459,8 @@ export default function SettingsPage() {
             </div>
           )}
         </div>
+          </div>
+        </main>
       </div>
     </div>
   );

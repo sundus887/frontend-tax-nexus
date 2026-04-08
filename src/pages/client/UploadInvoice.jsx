@@ -18,9 +18,8 @@ export default function UploadInvoice() {
   const steps = [
     { number: 1, title: 'Upload', desc: 'Upload Excel file' },
     { number: 2, title: 'Preview', desc: 'Review data' },
-    { number: 3, title: 'Map', desc: 'Map columns' },
-    { number: 4, title: 'Validate', desc: 'Check for errors' },
-    { number: 5, title: 'Submit', desc: 'Send to FBR' },
+    { number: 3, title: 'Validate', desc: 'Check for errors' },
+    { number: 4, title: 'Submit', desc: 'Send to FBR' },
   ];
 
   // FBR IRIS required fields (12 fields)
@@ -137,11 +136,74 @@ export default function UploadInvoice() {
     }
   };
 
-  const handleMappingChange = (fbrField, excelColumnIndex) => {
-    setColumnMapping(prev => ({
-      ...prev,
-      [fbrField]: parseInt(excelColumnIndex)
-    }));
+  // Helper function to format date as YYYY/MM/DD
+  const formatDateToYYYYMMDD = (dateValue) => {
+    if (!dateValue) return '-';
+    
+    try {
+      // If it's already a Date object
+      if (dateValue instanceof Date) {
+        const year = dateValue.getFullYear();
+        const month = String(dateValue.getMonth() + 1).padStart(2, '0');
+        const day = String(dateValue.getDate()).padStart(2, '0');
+        return `${year}/${month}/${day}`;
+      }
+      
+      // If it's a string, try to parse it
+      const dateStr = dateValue.toString();
+      
+      // Check if already in YYYY/MM/DD format
+      if (/^\d{4}\/\d{2}\/\d{2}$/.test(dateStr)) {
+        return dateStr;
+      }
+      
+      // Check if in YYYY-MM-DD format
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+        return dateStr.replace(/-/g, '/');
+      }
+      
+      // Check if in DD/MM/YYYY or DD-MM-YYYY format
+      const ddmmyyyyMatch = dateStr.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+      if (ddmmyyyyMatch) {
+        const day = ddmmyyyyMatch[1].padStart(2, '0');
+        const month = ddmmyyyyMatch[2].padStart(2, '0');
+        const year = ddmmyyyyMatch[3];
+        return `${year}/${month}/${day}`;
+      }
+      
+      // Check if in MM/DD/YYYY or MM-DD-YYYY format
+      const mmddyyyyMatch = dateStr.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+      if (mmddyyyyMatch && parseInt(mmddyyyyMatch[1]) <= 12) {
+        const month = mmddyyyyMatch[1].padStart(2, '0');
+        const day = mmddyyyyMatch[2].padStart(2, '0');
+        const year = mmddyyyyMatch[3];
+        return `${year}/${month}/${day}`;
+      }
+      
+      // Try parsing as Date
+      const date = new Date(dateStr);
+      if (!isNaN(date.getTime())) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}/${month}/${day}`;
+      }
+      
+      // If Excel serial number (like 45000)
+      if (typeof dateValue === 'number' && dateValue > 30000 && dateValue < 60000) {
+        // Excel dates are counted from 1900-01-01
+        const excelEpoch = new Date(1900, 0, 1);
+        const date = new Date(excelEpoch.getTime() + (dateValue - 1) * 24 * 60 * 60 * 1000);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}/${month}/${day}`;
+      }
+      
+      return dateStr;
+    } catch {
+      return dateValue.toString();
+    }
   };
 
   const validateData = () => {
@@ -331,11 +393,20 @@ export default function UploadInvoice() {
                   {excelData?.slice(0, 10).map((row, rowIdx) => (
                     <tr key={rowIdx} style={{ borderBottom: '1px solid #e5e7eb' }}>
                       <td style={{ padding: '12px 16px', fontSize: '14px', color: '#111827' }}>{rowIdx + 1}</td>
-                      {headers.map((_, colIdx) => (
-                        <td key={colIdx} style={{ padding: '12px 16px', fontSize: '14px', color: '#6b7280' }}>
-                          {row[colIdx] || '-'}
-                        </td>
-                      ))}
+                      {headers.map((header, colIdx) => {
+                        const value = row[colIdx];
+                        // Check if this column is a date column
+                        const isDateColumn = header.toString().toLowerCase().includes('date') || 
+                                            header.toString().toLowerCase().includes('time');
+                        const displayValue = isDateColumn && value 
+                          ? formatDateToYYYYMMDD(value)
+                          : (value || '-');
+                        return (
+                          <td key={colIdx} style={{ padding: '12px 16px', fontSize: '14px', color: '#6b7280' }}>
+                            {displayValue}
+                          </td>
+                        );
+                      })}
                     </tr>
                   ))}
                 </tbody>
@@ -382,190 +453,13 @@ export default function UploadInvoice() {
                   cursor: 'pointer'
                 }}
               >
-                Continue to Mapping <span>→</span>
-              </button>
-            </div>
-          </div>
-        );
-
-      case 3:
-        // Calculate mapped fields count
-        const requiredFields = fbrFields.filter(f => f.required);
-        const requiredMappedCount = requiredFields.filter(f => columnMapping[f.key] !== undefined && columnMapping[f.key] !== '').length;
-        const allRequiredMapped = requiredMappedCount === requiredFields.length;
-
-        return (
-          <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '24px' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827', marginBottom: '4px' }}>Map Excel Columns to FBR Fields</h2>
-            <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '24px' }}>Match your Excel columns with the required FBR IRIS fields</p>
-
-            {/* Progress Banner */}
-            <div style={{ 
-              backgroundColor: allRequiredMapped ? '#f0fdf4' : '#fefce8', 
-              border: `1px solid ${allRequiredMapped ? '#bbf7d0' : '#fde047'}`, 
-              borderRadius: '8px', 
-              padding: '16px', 
-              marginBottom: '24px',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span style={{ fontSize: '20px' }}>{allRequiredMapped ? '✓' : '⚠'}</span>
-                <div>
-                  <p style={{ fontSize: '14px', fontWeight: '600', color: allRequiredMapped ? '#166534' : '#854d0e' }}>
-                    {allRequiredMapped ? 'All required fields mapped' : 'Required fields need mapping'}
-                  </p>
-                  <p style={{ fontSize: '13px', color: allRequiredMapped ? '#16a34a' : '#a16207' }}>
-                    {requiredMappedCount} of {requiredFields.length} required fields mapped
-                  </p>
-                </div>
-              </div>
-              <div style={{ 
-                padding: '6px 12px', 
-                backgroundColor: allRequiredMapped ? '#16a34a' : '#eab308', 
-                color: 'white',
-                borderRadius: '6px',
-                fontSize: '13px',
-                fontWeight: '600'
-              }}>
-                {requiredMappedCount}/{requiredFields.length}
-              </div>
-            </div>
-
-            {/* Field Mapping Cards */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
-              {fbrFields.map((field) => {
-                const isMapped = columnMapping[field.key] !== undefined && columnMapping[field.key] !== '';
-                return (
-                  <div key={field.key} style={{ 
-                    padding: '20px', 
-                    backgroundColor: 'white', 
-                    border: `1px solid ${isMapped ? '#bbf7d0' : '#e5e7eb'}`,
-                    borderRadius: '12px',
-                    boxShadow: isMapped ? '0 1px 3px rgba(0,0,0,0.05)' : 'none'
-                  }}>
-                    <div style={{ marginBottom: '12px' }}>
-                      <label style={{ fontSize: '15px', fontWeight: '600', color: '#111827', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {field.label}
-                        {field.required && (
-                          <span style={{ 
-                            padding: '2px 8px', 
-                            backgroundColor: '#dc2626', 
-                            color: 'white', 
-                            borderRadius: '4px',
-                            fontSize: '11px',
-                            fontWeight: '600'
-                          }}>
-                            Required
-                          </span>
-                        )}
-                        <span style={{ 
-                          width: '18px', 
-                          height: '18px', 
-                          borderRadius: '50%', 
-                          backgroundColor: '#e5e7eb',
-                          color: '#6b7280',
-                          fontSize: '11px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'help'
-                        }} title={field.description}>?</span>
-                      </label>
-                      <p style={{ fontSize: '13px', color: '#6b7280', marginTop: '4px' }}>{field.description}</p>
-                    </div>
-                    <select
-                      value={columnMapping[field.key] !== undefined ? columnMapping[field.key] : ''}
-                      onChange={(e) => handleMappingChange(field.key, e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        border: `2px solid ${isMapped ? '#16a34a' : '#d1d5db'}`,
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        backgroundColor: 'white',
-                        color: isMapped ? '#111827' : '#6b7280',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <option value="">Select Excel column...</option>
-                      {headers.map((header, idx) => (
-                        <option key={idx} value={idx}>{header}</option>
-                      ))}
-                    </select>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Missing Required Fields Alert */}
-            {!allRequiredMapped && (
-              <div style={{ 
-                backgroundColor: '#fef2f2', 
-                border: '1px solid #fecaca', 
-                borderRadius: '8px', 
-                padding: '16px', 
-                marginBottom: '24px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px'
-              }}>
-                <span style={{ fontSize: '20px' }}>⚠️</span>
-                <div>
-                  <p style={{ fontSize: '14px', fontWeight: '600', color: '#dc2626' }}>
-                    Please map all required fields
-                  </p>
-                  <p style={{ fontSize: '13px', color: '#991b1b' }}>
-                    Missing: {requiredFields.filter(f => !columnMapping[f.key] && columnMapping[f.key] !== '').map(f => f.label).join(', ')}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <button
-                onClick={goBack}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '10px 20px',
-                  backgroundColor: 'white',
-                  color: '#374151',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  cursor: 'pointer'
-                }}
-              >
-                <span>←</span> Back
-              </button>
-              <button
-                onClick={() => setCurrentStep(4)}
-                disabled={!allRequiredMapped}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '10px 24px',
-                  backgroundColor: allRequiredMapped ? '#2563eb' : '#9ca3af',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  cursor: allRequiredMapped ? 'pointer' : 'not-allowed'
-                }}
-              >
                 Continue to Validation <span>→</span>
               </button>
             </div>
           </div>
         );
 
-      case 4:
+      case 3:
         return (
           <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '24px' }}>
             <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', marginBottom: '4px' }}>Validate Data</h2>
@@ -573,10 +467,14 @@ export default function UploadInvoice() {
 
             {!validationResults ? (
               <div style={{ textAlign: 'center', padding: '40px' }}>
+                <div style={{ marginBottom: '24px' }}>
+                  <p style={{ fontSize: '16px', color: '#374151', marginBottom: '8px' }}>Ready to validate {excelData?.length || 0} records</p>
+                  <p style={{ fontSize: '14px', color: '#6b7280' }}>This will check for missing fields, invalid formats, and data errors</p>
+                </div>
                 <button
                   onClick={validateData}
                   style={{
-                    padding: '12px 24px',
+                    padding: '12px 32px',
                     backgroundColor: '#2563eb',
                     color: 'white',
                     border: 'none',
@@ -642,7 +540,7 @@ export default function UploadInvoice() {
                     <span>←</span> Back
                   </button>
                   <button
-                    onClick={() => setCurrentStep(5)}
+                    onClick={() => setCurrentStep(4)}
                     disabled={validationResults.valid === 0}
                     style={{
                       display: 'flex',
@@ -666,7 +564,7 @@ export default function UploadInvoice() {
           </div>
         );
 
-      case 5:
+      case 4:
         return (
           <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '24px' }}>
             <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', marginBottom: '4px' }}>Submit to FBR</h2>
