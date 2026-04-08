@@ -11,6 +11,7 @@ export default function Sidebar({ userType }) {
     { path: '/admin/dashboard', label: 'Dashboard', icon: '◻' },
     { path: '/admin/create-company', label: 'Create Company', icon: '+' },
     { path: '/admin/create-user', label: 'Create User', icon: '👤' },
+    { path: '/settings', label: 'Settings', icon: '⚙️' },
   ];
 
   const clientMenu = [

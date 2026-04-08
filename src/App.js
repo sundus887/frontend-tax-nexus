@@ -14,6 +14,7 @@ import CreateUser from './pages/admin/CreateUser';
 import ClientDashboard from './pages/client/Dashboard';
 import UploadInvoice from './pages/client/UploadInvoice';
 import InvoiceHistory from './pages/client/InvoiceHistory';
+import SettingsPage from './pages/SettingsPage';
 
 // Check authentication
 const isAuthenticated = () => {
@@ -82,6 +83,13 @@ export default function App() {
             <UserRoute>
               <InvoiceHistory />
             </UserRoute>
+          </ProtectedRoute>
+        } />
+
+        {/* SETTINGS - Available to both Admin and Client */}
+        <Route path="/settings" element={
+          <ProtectedRoute>
+            <SettingsPage />
           </ProtectedRoute>
         } />
 
