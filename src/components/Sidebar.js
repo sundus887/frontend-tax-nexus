@@ -68,9 +68,16 @@ export default function Sidebar({ activePage }) {
   return (
     <aside className={collapsed ? 'sidebar sidebarCollapsed' : 'sidebar'}>
       <div className="sidebarHeader">
-        <div className="brandIcon" aria-hidden="true">
-          <div className="brandIconInner" />
-        </div>
+        <img 
+          src="/logo.jpg" 
+          alt="Tax Nexus" 
+          style={{ 
+            width: collapsed ? '32px' : '40px', 
+            height: collapsed ? '32px' : '40px', 
+            objectFit: 'contain',
+            borderRadius: '8px'
+          }} 
+        />
         {!collapsed && (
           <div className="brandText">
             <div className="brandName">{brand.name}</div>

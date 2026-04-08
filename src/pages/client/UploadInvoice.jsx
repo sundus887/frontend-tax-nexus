@@ -189,11 +189,12 @@ export default function UploadInvoice() {
         return `${year}/${month}/${day}`;
       }
       
-      // If Excel serial number (like 45000)
-      if (typeof dateValue === 'number' && dateValue > 30000 && dateValue < 60000) {
-        // Excel dates are counted from 1900-01-01
-        const excelEpoch = new Date(1900, 0, 1);
-        const date = new Date(excelEpoch.getTime() + (dateValue - 1) * 24 * 60 * 60 * 1000);
+      // If Excel serial number (like 45000 or 46116)
+      // Excel dates are counted from 1900-01-01 (with Lotus 1-2-3 bug for 1900 being a leap year)
+      if (typeof dateValue === 'number' && dateValue > 1) {
+        // Excel's epoch is 1900-01-00 (with the 1900 leap year bug)
+        const excelEpoch = new Date(1899, 11, 30); // December 30, 1899
+        const date = new Date(excelEpoch.getTime() + dateValue * 24 * 60 * 60 * 1000);
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
