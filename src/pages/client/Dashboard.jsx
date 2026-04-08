@@ -21,8 +21,14 @@ export default function ClientDashboard() {
       
       setStats({
         total: invoicesData.length,
-        sent: invoicesData.filter(inv => inv.status === 'sent' || inv.fbr_status === 'sent').length,
-        pending: invoicesData.filter(inv => inv.status === 'pending' || inv.fbr_status === 'pending').length
+        sent: invoicesData.filter(inv => {
+          const status = inv.status || inv.fbr_status || inv.fbrStatus || inv['Status'] || 'pending';
+          return status === 'sent' || status === 'validated';
+        }).length,
+        pending: invoicesData.filter(inv => {
+          const status = inv.status || inv.fbr_status || inv.fbrStatus || inv['Status'] || 'pending';
+          return status === 'pending';
+        }).length
       });
     } catch (err) {
       console.error('Failed to fetch invoices:', err);
@@ -109,31 +115,39 @@ export default function ClientDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {invoices.map((invoice) => (
-                    <tr key={invoice.id} style={{ borderTop: '1px solid #e5e7eb' }}>
-                      <td style={{ padding: '16px 20px', fontSize: '14px', fontWeight: '500', color: '#111827' }}>
-                        {invoice.invoice_number}
-                      </td>
-                      <td style={{ padding: '16px 20px', fontSize: '14px', color: '#6b7280' }}>
-                        {invoice.customer_name}
-                      </td>
-                      <td style={{ padding: '16px 20px', fontSize: '14px', color: '#6b7280' }}>
-                        PKR {invoice.amount?.toLocaleString()}
-                      </td>
-                      <td style={{ padding: '16px 20px' }}>
-                        <span style={{
-                          padding: '4px 10px',
-                          borderRadius: '12px',
-                          fontSize: '12px',
-                          fontWeight: '500',
-                          backgroundColor: invoice.status === 'sent' ? '#d1fae5' : invoice.status === 'invalid' ? '#fee2e2' : '#fef3c7',
-                          color: invoice.status === 'sent' ? '#065f46' : invoice.status === 'invalid' ? '#991b1b' : '#92400e'
-                        }}>
-                          {invoice.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                  {invoices.map((invoice, index) => {
+                    // Handle different field name formats from backend
+                    const invoiceNumber = invoice.invoice_number || invoice.invoiceNo || invoice.invoice_no || invoice.invoiceNumber || invoice['Invoice_No'] || `INV-${index + 1}`;
+                    const customerName = invoice.customer_name || invoice.customerName || invoice.customer || invoice['Customer'] || invoice.buyer_name || invoice.buyerName || '-';
+                    const amount = invoice.amount || invoice.total || invoice.total_amount || invoice.totalAmount || invoice['Amount'] || 0;
+                    const status = invoice.status || invoice.fbr_status || invoice.fbrStatus || invoice['Status'] || 'pending';
+                    
+                    return (
+                      <tr key={invoice.id || index} style={{ borderTop: '1px solid #e5e7eb' }}>
+                        <td style={{ padding: '16px 20px', fontSize: '14px', fontWeight: '500', color: '#111827' }}>
+                          {invoiceNumber}
+                        </td>
+                        <td style={{ padding: '16px 20px', fontSize: '14px', color: '#6b7280' }}>
+                          {customerName}
+                        </td>
+                        <td style={{ padding: '16px 20px', fontSize: '14px', color: '#6b7280' }}>
+                          PKR {Number(amount).toLocaleString()}
+                        </td>
+                        <td style={{ padding: '16px 20px' }}>
+                          <span style={{
+                            padding: '4px 10px',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: '500',
+                            backgroundColor: status === 'sent' || status === 'validated' ? '#d1fae5' : status === 'invalid' ? '#fee2e2' : '#fef3c7',
+                            color: status === 'sent' || status === 'validated' ? '#065f46' : status === 'invalid' ? '#991b1b' : '#92400e'
+                          }}>
+                            {status}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             )}

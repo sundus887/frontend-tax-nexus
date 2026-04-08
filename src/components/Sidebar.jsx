@@ -49,7 +49,7 @@ export default function Sidebar({ userType }) {
         <img
           src="/logo.jpg"
           alt="Tax Nexus"
-          style={{ height: '40px', width: 'auto' }}
+          style={{ height: '40px', width: '40px', objectFit: 'contain' }}
         />
         <span style={{ fontSize: '18px', fontWeight: 'bold' }}>TAX NEXUS</span>
       </div>

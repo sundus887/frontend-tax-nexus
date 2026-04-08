@@ -47,10 +47,12 @@ export default function Sidebar({ activePage }) {
       );
     }
 
-    // Add common items
-    baseItems.push(
-      { key: 'settings', label: 'Settings', icon: SettingsIcon, href: '/settings' }
-    );
+    // Settings only for admin users
+    if (userIsAdmin) {
+      baseItems.push(
+        { key: 'settings', label: 'Settings', icon: SettingsIcon, href: '/settings' }
+      );
+    }
 
     return baseItems;
   }, [userIsAdmin]);
